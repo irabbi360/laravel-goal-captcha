@@ -26,6 +26,18 @@ async function loadImage(src) {
   })
 }
 
+/** Draw a filled regular pentagon centred at (cx, cy) with circumradius r. */
+function _drawPentagon(ctx, cx, cy, r) {
+  ctx.beginPath()
+  for (let i = 0; i < 5; i++) {
+    const a = (i * 72 - 90) * Math.PI / 180
+    if (i === 0) ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+    else         ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
+  }
+  ctx.closePath()
+  ctx.fill()
+}
+
 export class SceneRenderer {
   /**
    * @param {HTMLCanvasElement} canvas
@@ -79,7 +91,7 @@ export class SceneRenderer {
     this._drawDecoys(data.scene.decoys ?? [])
     this._drawTargetRing(data.target_x, height)
     this._drawGoalkeeper(data.scene, width, height)
-    this._drawBall(height, data.scene?.ball_radius ?? 18)
+    this._drawBall(height)
   }
 
   // ─── Layer renderers ─────────────────────────────────────────────────────
@@ -88,84 +100,236 @@ export class SceneRenderer {
     const img = this.images.stadium
     if (img) {
       this.ctx.drawImage(img, 0, 0, w, h)
-    } else {
-      // Fallback gradient
-      const grad = this.ctx.createLinearGradient(0, 0, 0, h)
-      grad.addColorStop(0, '#1a472a')
-      grad.addColorStop(1, '#2d6a4f')
-      this.ctx.fillStyle = grad
-      this.ctx.fillRect(0, 0, w, h)
+      return
+    }
+    const ctx = this.ctx
 
-      // Simple grass lines
-      this.ctx.strokeStyle = 'rgba(255,255,255,0.08)'
-      this.ctx.lineWidth   = 1
-      for (let x = 0; x <= w; x += 30) {
-        this.ctx.beginPath()
-        this.ctx.moveTo(x, 0)
-        this.ctx.lineTo(x, h)
-        this.ctx.stroke()
-      }
+    // Sky gradient
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.72)
+    skyGrad.addColorStop(0,    '#4e9fc8')
+    skyGrad.addColorStop(0.55, '#6ab9de')
+    skyGrad.addColorStop(1,    '#88ccec')
+    ctx.fillStyle = skyGrad
+    ctx.fillRect(0, 0, w, h * 0.72)
+
+    // Stadium stand — left corner
+    ctx.fillStyle   = 'rgba(58,118,178,0.38)'
+    ctx.strokeStyle = 'rgba(38,98,158,0.28)'
+    ctx.lineWidth   = 1
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.lineTo(w * 0.42, 0)
+    ctx.lineTo(w * 0.30, h * 0.20)
+    ctx.lineTo(0, h * 0.24)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+
+    // Stadium stand — right corner
+    ctx.beginPath()
+    ctx.moveTo(w * 0.58, 0)
+    ctx.lineTo(w, 0)
+    ctx.lineTo(w, h * 0.24)
+    ctx.lineTo(w * 0.70, h * 0.20)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+
+    // Grass
+    const grassGrad = ctx.createLinearGradient(0, h * 0.63, 0, h)
+    grassGrad.addColorStop(0,   '#52c148')
+    grassGrad.addColorStop(0.3, '#46b23c')
+    grassGrad.addColorStop(1,   '#3aa030')
+    ctx.fillStyle = grassGrad
+    ctx.fillRect(0, h * 0.66, w, h)
+
+    // Soft sky→grass fade
+    const blendGrad = ctx.createLinearGradient(0, h * 0.62, 0, h * 0.70)
+    blendGrad.addColorStop(0, 'rgba(80,185,70,0)')
+    blendGrad.addColorStop(1, '#52c148')
+    ctx.fillStyle = blendGrad
+    ctx.fillRect(0, h * 0.62, w, h * 0.10)
+
+    // Alternating stripe texture on grass
+    ctx.fillStyle = 'rgba(255,255,255,0.04)'
+    for (let sx = 0; sx < w; sx += 36) {
+      ctx.fillRect(sx, h * 0.66, 18, h * 0.34)
     }
   }
 
   _drawGoalPost(w, h) {
     const img = this.images.goal_post
-    const goalW  = Math.round(w * 0.35 * (this.data.scene.goal_width_scale ?? 1))
-    const goalH  = Math.round(h * 0.6)
-    const goalX  = Math.round((w - goalW) / 2)
-    const goalY  = Math.round(h * 0.05)
+
+    // Goal frame bounds
+    const GL  = Math.round(w * 0.07)    // left post x
+    const GR  = Math.round(w * 0.93)    // right post x
+    const GT  = Math.round(h * 0.09)    // crossbar y
+    const GB  = Math.round(h * 0.88)    // bottom (grass) y
+    const PW  = 7                       // post stroke width
+    const DX  = Math.round(w * 0.055)   // 3-D depth x offset
+    const DY  = Math.round(h * 0.10)    // 3-D depth y offset (upward)
 
     if (img) {
-      this.ctx.drawImage(img, goalX, goalY, goalW, goalH)
+      this.ctx.drawImage(img, GL, GT, GR - GL, GB - GT)
       return
     }
 
-    // Fallback: draw a simple goal post
-    this.ctx.strokeStyle = '#ffffff'
-    this.ctx.lineWidth   = 4
-    this.ctx.strokeRect(goalX, goalY, goalW, goalH)
+    const ctx = this.ctx
+    const BL  = GL + DX   // back-left corner x
+    const BR  = GR - DX   // back-right corner x
+    const BT  = GT - DY   // back crossbar y
 
-    // Net pattern
-    this.ctx.strokeStyle = 'rgba(255,255,255,0.2)'
-    this.ctx.lineWidth   = 1
-    for (let x = goalX; x <= goalX + goalW; x += 15) {
-      this.ctx.beginPath()
-      this.ctx.moveTo(x, goalY)
-      this.ctx.lineTo(x, goalY + goalH)
-      this.ctx.stroke()
+    ctx.save()
+
+    // ── Net (clipped to goal interior) ─────────────────────────────
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(GL + PW * 0.5, GT + PW * 0.5, GR - GL - PW, GB - GT - PW * 0.5)
+    ctx.clip()
+
+    ctx.fillStyle = 'rgba(160,200,230,0.07)'
+    ctx.fillRect(GL, GT, GR - GL, GB - GT)
+
+    ctx.strokeStyle = 'rgba(170,205,235,0.42)'
+    ctx.lineWidth   = 0.8
+    for (let nx = GL; nx <= GR; nx += 20) {
+      ctx.beginPath(); ctx.moveTo(nx, GT); ctx.lineTo(nx, GB); ctx.stroke()
     }
-    for (let y = goalY; y <= goalY + goalH; y += 12) {
-      this.ctx.beginPath()
-      this.ctx.moveTo(goalX, y)
-      this.ctx.lineTo(goalX + goalW, y)
-      this.ctx.stroke()
+    for (let ny = GT; ny <= GB; ny += 15) {
+      ctx.beginPath(); ctx.moveTo(GL, ny); ctx.lineTo(GR, ny); ctx.stroke()
     }
+    ctx.restore()
+
+    // ── 3-D back structure ─────────────────────────────────────────
+    ctx.strokeStyle = 'rgba(210,225,240,0.72)'
+    ctx.lineWidth   = 3.5
+    ctx.lineCap     = 'round'
+
+    // Angled depth lines from front corners to back corners
+    ctx.beginPath(); ctx.moveTo(GL, GT); ctx.lineTo(BL, BT); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(GR, GT); ctx.lineTo(BR, BT); ctx.stroke()
+
+    // Back crossbar
+    ctx.beginPath(); ctx.moveTo(BL, BT); ctx.lineTo(BR, BT); ctx.stroke()
+
+    // Back vertical posts
+    ctx.strokeStyle = 'rgba(190,215,235,0.48)'
+    ctx.lineWidth   = 2.5
+    ctx.beginPath(); ctx.moveTo(BL, BT); ctx.lineTo(BL, GB); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(BR, BT); ctx.lineTo(BR, GB); ctx.stroke()
+
+    // ── Front white posts ──────────────────────────────────────────
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth   = PW
+    ctx.lineCap     = 'square'
+
+    ctx.beginPath(); ctx.moveTo(GL, GT); ctx.lineTo(GR, GT); ctx.stroke() // crossbar
+    ctx.beginPath(); ctx.moveTo(GL, GT); ctx.lineTo(GL, GB); ctx.stroke() // left post
+    ctx.beginPath(); ctx.moveTo(GR, GT); ctx.lineTo(GR, GB); ctx.stroke() // right post
+
+    ctx.restore()
   }
 
   _drawGoalkeeper(scene, w, h) {
-    const img = this.images.goalkeeper
-    const kw  = Math.round(h * 0.35)
-    const kh  = Math.round(h * 0.72)
-    const kx  = Math.round(w / 2 - kw / 2 + this.keeperOffsetX)
-    const ky  = Math.round(h * 0.18)
+    const img  = this.images.goalkeeper
+    const kcx  = Math.round(w * 0.40 + this.keeperOffsetX)
+    const kTop = Math.round(h * 0.16)
+    const kBot = Math.round(h * 0.89)
+    const kH   = kBot - kTop
 
     if (img) {
-      this.ctx.drawImage(img, kx, ky, kw, kh)
+      const iw = Math.round(kH * 0.52)
+      this.ctx.drawImage(img, kcx - iw / 2, kTop, iw, kH)
       return
     }
 
-    // Fallback: simple stick figure
-    this.ctx.fillStyle = '#e74c3c'
-    this.ctx.fillRect(kx + Math.round(kw * 0.3), ky + Math.round(kh * 0.15), Math.round(kw * 0.4), Math.round(kh * 0.55))
-    this.ctx.beginPath()
-    this.ctx.arc(kx + Math.round(kw / 2), ky + Math.round(kh * 0.1), Math.round(kw * 0.18), 0, Math.PI * 2)
-    this.ctx.fill()
+    const ctx = this.ctx
+    ctx.save()
+
+    // ─── Proportions ─────────────────────────────────────────────
+    const headR      = Math.round(kH * 0.09)
+    const headCy     = kTop + headR
+    const shoulderY  = headCy + headR + Math.round(kH * 0.025)
+    const torsoH     = Math.round(kH * 0.30)
+    const shortsH    = Math.round(kH * 0.16)
+    const legH       = Math.round(kH * 0.21)
+    const bw         = Math.round(kH * 0.21)   // half-torso width
+    const armW       = Math.round(kH * 0.055)
+    const armLen     = Math.round(kH * 0.40)
+    const armAngle   = 40 * Math.PI / 180
+    const legY       = shoulderY + torsoH + shortsH
+    const legW       = Math.round(bw * 0.44)
+
+    // ── Shoes ─────────────────────────────────────────────────────
+    ctx.fillStyle = '#111111'
+    ctx.beginPath()
+    ctx.ellipse(kcx - bw * 0.52, legY + legH + headR * 0.35, headR * 0.80, headR * 0.35, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.ellipse(kcx + bw * 0.52, legY + legH + headR * 0.35, headR * 0.80, headR * 0.35, 0, 0, Math.PI * 2)
+    ctx.fill()
+
+    // ── Legs ──────────────────────────────────────────────────────
+    ctx.fillStyle = '#1c1c2e'
+    ctx.fillRect(kcx - bw * 0.75,            legY, legW, legH)
+    ctx.fillRect(kcx + bw * 0.75 - legW,     legY, legW, legH)
+
+    // ── Shorts ────────────────────────────────────────────────────
+    ctx.fillStyle = '#1c1c2e'
+    ctx.fillRect(kcx - bw, shoulderY + torsoH, bw * 2, shortsH)
+
+    // ── Jersey (white) ────────────────────────────────────────────
+    ctx.fillStyle = '#f2f2f2'
+    ctx.fillRect(kcx - bw, shoulderY, bw * 2, torsoH)
+
+    // Red chest stripe
+    const stripeH = Math.round(torsoH * 0.26)
+    const stripeY = shoulderY + Math.round(torsoH * 0.38)
+    ctx.fillStyle = '#e63946'
+    ctx.fillRect(kcx - bw, stripeY, bw * 2, stripeH)
+
+    // ── Arms ──────────────────────────────────────────────────────
+    const shoulderMidY = shoulderY + Math.round(torsoH * 0.10)
+    const lEndX = kcx - bw - Math.round(armLen * Math.cos(armAngle))
+    const lEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
+    const rEndX = kcx + bw + Math.round(armLen * Math.cos(armAngle))
+    const rEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
+
+    ctx.strokeStyle = '#f2f2f2'
+    ctx.lineWidth   = armW
+    ctx.lineCap     = 'round'
+    ctx.beginPath(); ctx.moveTo(kcx - bw, shoulderMidY); ctx.lineTo(lEndX, lEndY); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(kcx + bw, shoulderMidY); ctx.lineTo(rEndX, rEndY); ctx.stroke()
+
+    // Gloves
+    ctx.fillStyle = '#c8d5e2'
+    ctx.beginPath(); ctx.arc(lEndX, lEndY, armW * 1.6, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(rEndX, rEndY, armW * 1.6, 0, Math.PI * 2); ctx.fill()
+
+    // ── Head ──────────────────────────────────────────────────────
+    // Face
+    ctx.fillStyle = '#f0c090'
+    ctx.beginPath(); ctx.arc(kcx, headCy, headR, 0, Math.PI * 2); ctx.fill()
+
+    // Hair (dark, top half arc)
+    ctx.fillStyle = '#1a0f08'
+    ctx.beginPath()
+    ctx.arc(kcx, headCy, headR, Math.PI, 0)
+    ctx.closePath()
+    ctx.fill()
+
+    // Eyes
+    ctx.fillStyle = '#1a0f08'
+    ctx.beginPath(); ctx.arc(kcx - headR * 0.28, headCy + headR * 0.08, headR * 0.09, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(kcx + headR * 0.28, headCy + headR * 0.08, headR * 0.09, 0, Math.PI * 2); ctx.fill()
+
+    ctx.restore()
   }
 
   /** The target ring — metallic gray hoop inside the goal area. */
   _drawTargetRing(targetX, h) {
     const cx  = targetX
-    const cy  = Math.round(h * 0.38)   // inside goal post area
+    const cy  = Math.round(h * 0.40)   // inside goal post area
     const r   = Math.round(h * 0.14)   // ~14% of canvas height
     const ctx = this.ctx
 
@@ -214,7 +378,7 @@ export class SceneRenderer {
   /** Decoy rings — semi-transparent, misleading. */
   _drawDecoys(decoys) {
     for (const decoy of decoys) {
-      const cy = Math.round(this.canvas.height * 0.38)
+      const cy = Math.round(this.canvas.height * 0.40)
       this.ctx.save()
       this.ctx.strokeStyle = `rgba(180,180,180,${decoy.opacity})`
       this.ctx.lineWidth   = 4
@@ -225,31 +389,62 @@ export class SceneRenderer {
     }
   }
 
-  _drawBall(h, radius) {
+  _drawBall(h) {
     const img = this.images.ball
+    const r   = Math.round(h * 0.22)   // large ball — ~22 % of canvas height
     const cx  = this.ballX
-    const cy  = Math.round(h * 0.76)   // ground level
+    const cy  = Math.round(h * 0.82)   // ground level
 
     if (img) {
-      this.ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2)
+      this.ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2)
       return
     }
 
-    // Fallback: simple football circle
-    this.ctx.save()
-    this.ctx.fillStyle   = '#f5f5f5'
-    this.ctx.strokeStyle = '#333'
-    this.ctx.lineWidth   = 2
-    this.ctx.shadowColor = 'rgba(0,0,0,0.4)'
-    this.ctx.shadowBlur  = 6
+    const ctx = this.ctx
+    ctx.save()
 
-    this.ctx.beginPath()
-    this.ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-    this.ctx.fill()
-    this.ctx.stroke()
+    // Clip to canvas so ball can hang off the left/right edge naturally
+    ctx.beginPath()
+    ctx.rect(0, 0, this.canvas.width, this.canvas.height)
+    ctx.clip()
 
-    // Pentagon patches
-    this.ctx.fillStyle = '#222'
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)'
+    ctx.beginPath()
+    ctx.ellipse(cx + r * 0.04, cy + r * 0.90, r * 0.78, r * 0.14, 0, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Ball sphere — radial gradient for 3-D look
+    const sGrad = ctx.createRadialGradient(cx - r * 0.30, cy - r * 0.30, r * 0.05, cx, cy, r)
+    sGrad.addColorStop(0,    '#ffffff')
+    sGrad.addColorStop(0.42, '#eeeeee')
+    sGrad.addColorStop(1,    '#c0c0c0')
+    ctx.fillStyle = sGrad
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Pentagon patches (classic football pattern)
+    ctx.fillStyle = '#1a1a1a'
+    _drawPentagon(ctx, cx, cy, r * 0.20)
+    const patchR = r * 0.185
+    const pDist  = r * 0.47
+    for (let i = 0; i < 5; i++) {
+      const a = (i * 72 - 90) * Math.PI / 180
+      _drawPentagon(ctx, cx + pDist * Math.cos(a), cy + pDist * Math.sin(a), patchR)
+    }
+
+    // Outline
+    ctx.strokeStyle = '#888888'
+    ctx.lineWidth   = 1.5
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.stroke()
+
+    ctx.restore()
+
+    // ── dead code kept for signature compatibility (never reached) ──
+    const radius = r
     const patches = [
       [cx, cy],
       [cx - radius * 0.4, cy - radius * 0.5],

@@ -1,0 +1,51 @@
+{
+    "name": "@irabbi360/goal-captcha",
+    "version": "1.0.0",
+    "description": "Football goal slider CAPTCHA — Vue 3 component for Laravel.",
+    "keywords": ["captcha", "laravel", "vue3", "slider", "football", "anti-bot"],
+    "author": "Fazle Rabbi <fazle08rabbi@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/irabbi360/laravel-goal-captcha",
+    "repository": {
+        "type": "git",
+        "url":  "https://github.com/irabbi360/laravel-goal-captcha.git"
+    },
+
+    "main":    "resources/dist/goal-captcha.umd.js",
+    "module":  "resources/dist/goal-captcha.es.js",
+    "exports": {
+        ".": {
+            "import":  "./resources/dist/goal-captcha.es.js",
+            "require": "./resources/dist/goal-captcha.umd.js"
+        },
+        "./style": "./resources/dist/goal-captcha.css"
+    },
+    "files": [
+        "resources/dist",
+        "resources/js",
+        "resources/images"
+    ],
+
+    "peerDependencies": {
+        "vue": "^3.3"
+    },
+
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.4",
+        "autoprefixer":       "^10.4.19",
+        "eslint":             "^9.3.0",
+        "eslint-plugin-vue":  "^9.26.0",
+        "postcss":            "^8.4.38",
+        "vitest":             "^1.6.0",
+        "vue":                "^3.4.27",
+        "vite":               "^5.2.13"
+    },
+
+    "scripts": {
+        "dev":     "vite build --watch",
+        "build":   "vite build",
+        "test":    "vitest run",
+        "test:ui": "vitest --ui",
+        "lint":    "eslint resources/js --ext .vue,.js"
+    }
+}

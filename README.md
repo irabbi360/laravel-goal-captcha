@@ -1,84 +1,178 @@
-# The package should provide a football goal slider CAPTCHA system.
+# ⚽ GoalCaptcha — Laravel Football Goal Slider CAPTCHA
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/irabbi360/laravel-goal-captcha.svg?style=flat-square)](https://packagist.org/packages/irabbi360/laravel-goal-captcha)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/irabbi360/laravel-goal-captcha/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/irabbi360/laravel-goal-captcha/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/irabbi360/laravel-goal-captcha/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/irabbi360/laravel-goal-captcha/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/irabbi360/laravel-goal-captcha.svg?style=flat-square)](https://packagist.org/packages/irabbi360/laravel-goal-captcha)
+[![Tests](https://github.com/irabbi360/laravel-goal-captcha/actions/workflows/tests.yml/badge.svg)](https://github.com/irabbi360/laravel-goal-captcha/actions)
+[![Latest Version](https://img.shields.io/packagist/v/irabbi360/laravel-goal-captcha.svg)](https://packagist.org/packages/irabbi360/laravel-goal-captcha)
+[![License](https://img.shields.io/packagist/l/irabbi360/laravel-goal-captcha.svg)](LICENSE.md)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+A production-ready, anti-bot football-goal slider CAPTCHA for Laravel — built like **Sanctum / Telescope / Pulse**.
 
-## Support us
+Users drag a football into the goal net. The backend verifies alignment, drag speed, and human motion patterns. Bots are rejected.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-goal-captcha.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-goal-captcha)
+---
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
+## Features
 
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+- ⚽ **Football goal canvas scene** — randomised stadium, goalkeeper, weather, decoys
+- 🖱 **Drag slider interaction** — mouse + touch, fully accessible (keyboard)
+- 🤖 **Anti-bot motion analysis** — speed variance, jerk, micro-corrections, interval consistency
+- 🔒 **Replay attack protection** — token deleted after first use
+- ⏱ **Auto-expiring challenges** — configurable TTL (default 2 min)
+- 🎨 **Theme system** — football theme included, extendable
+- 📱 **Mobile responsive** — works on touch devices
+- 🧩 **Blade component** \`<x-goal-captcha />\`
+- 🖼 **Vue 3 component** \`<GoalCaptcha />\`
+- 🔌 **Inertia / SPA / Nuxt** compatible
+- 🗃 **Pluggable storage** — Redis, Cache (array/file/database)
+- 🎉 **Event system** — \`CaptchaGenerated\`, \`CaptchaVerified\`, \`CaptchaFailed\`
+
+---
 
 ## Installation
 
-You can install the package via composer:
-
-```bash
+\`\`\`bash
 composer require irabbi360/laravel-goal-captcha
-```
+\`\`\`
 
-You can publish and run the migrations with:
+Publish assets and config:
 
-```bash
-php artisan vendor:publish --tag="laravel-goal-captcha-migrations"
-php artisan migrate
-```
+\`\`\`bash
+php artisan goal-captcha:install
+\`\`\`
 
-You can publish the config file with:
+---
 
-```bash
-php artisan vendor:publish --tag="laravel-goal-captcha-config"
-```
+## Quick Start — Blade
 
-This is the contents of the published config file:
+Add the component anywhere in your form:
 
-```php
+\`\`\`blade
+<form method="POST" action="/login">
+    @csrf
+    <x-goal-captcha />
+    <button type="submit">Login</button>
+</form>
+\`\`\`
+
+Protect the route with the middleware:
+
+\`\`\`php
+Route::middleware('goal-captcha')->post('/login', LoginController::class);
+\`\`\`
+
+---
+
+## Quick Start — Vue 3 / Inertia
+
+\`\`\`vue
+<script setup>
+import { GoalCaptcha } from '@irabbi360/goal-captcha'
+import '@irabbi360/goal-captcha/style'
+const token = ref(null)
+</script>
+
+<template>
+  <GoalCaptcha
+    generate-url="/_goal_captcha/generate"
+    verify-url="/_goal_captcha/verify"
+    field-name="captcha_token"
+    @verified="token = $event"
+  />
+</template>
+\`\`\`
+
+---
+
+## Vue Plugin
+
+\`\`\`js
+import GoalCaptchaPlugin from '@irabbi360/goal-captcha'
+
+createApp(App)
+  .use(GoalCaptchaPlugin, {
+    generateUrl: '/_goal_captcha/generate',
+    verifyUrl:   '/_goal_captcha/verify',
+    theme:       'football',
+    difficulty:  'medium',
+  })
+  .mount('#app')
+\`\`\`
+
+---
+
+## API Endpoints
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | \`/_goal_captcha/generate\` | Returns a CAPTCHA challenge |
+| POST | \`/_goal_captcha/verify\`   | Verifies submission, returns one-time token |
+
+---
+
+## Configuration
+
+\`\`\`php
 return [
+    'driver'                   => 'cache',    // 'redis' | 'cache'
+    'expire'                   => 120,
+    'tolerance'                => 12,
+    'min_drag_time'            => 400,
+    'max_attempts'             => 5,
+    'theme'                    => 'football',
+    'difficulty'               => 'medium',   // 'easy' | 'medium' | 'hard'
+    'enable_behavior_analysis' => true,
 ];
-```
+\`\`\`
 
-Optionally, you can publish the views using
+---
 
-```bash
-php artisan vendor:publish --tag="laravel-goal-captcha-views"
-```
+## Events
 
-## Usage
+\`\`\`php
+Event::listen(CaptchaVerified::class, fn($e) => logger('solved', ['id' => $e->captcha->captchaId]));
+\`\`\`
 
-```php
-$laravelGoalCaptcha = new Irabbi360\LaravelGoalCaptcha();
-echo $laravelGoalCaptcha->echoPhrase('Hello, Irabbi360!');
-```
+| Event | When |
+|-------|------|
+| \`CaptchaGenerated\` | Challenge created |
+| \`CaptchaVerified\`  | Human confirmed |
+| \`CaptchaFailed\`    | Verification rejected |
+
+---
+
+## Architecture
+
+\`\`\`
+src/
+├── GoalCaptchaServiceProvider.php
+├── LaravelGoalCaptcha.php
+├── Contracts/          CaptchaStoreInterface, MotionAnalyzerInterface
+├── DTO/                CaptchaData, VerificationData
+├── Events/             Generated, Verified, Failed
+├── Exceptions/         Expired, VerificationFailed, TooManyAttempts
+├── Facades/            GoalCaptcha
+├── Http/               Controllers, Middleware, Requests
+├── Services/           Generator, Verifier, MotionAnalyzer, SceneBuilder, TokenManager
+└── Support/Stores/     CacheStore, RedisStore
+
+resources/js/
+├── components/         GoalCaptcha.vue, GoalCanvas.vue, GoalSlider.vue, SuccessAnimation.vue
+├── composables/        useGoalCaptcha.js
+├── canvas/             renderer.js, animation.js, physics.js
+├── utils/              motionTracker.js
+└── index.js            Vue plugin + Blade auto-mount
+\`\`\`
+
+---
 
 ## Testing
 
-```bash
-composer test
-```
+\`\`\`bash
+composer test   # Pest (PHP)
+npm run test    # Vitest (JS)
+\`\`\`
 
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [Fazle Rabbi](https://github.com/irabbi360)
-- [All Contributors](../../contributors)
+---
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT — [Fazle Rabbi](https://github.com/irabbi360)

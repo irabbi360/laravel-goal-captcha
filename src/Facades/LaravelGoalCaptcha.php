@@ -2,15 +2,13 @@
 
 namespace Irabbi360\LaravelGoalCaptcha\Facades;
 
-use Illuminate\Support\Facades\Facade;
-
 /**
- * @see \Irabbi360\LaravelGoalCaptcha\LaravelGoalCaptcha
+ * Legacy alias — prefer GoalCaptcha facade.
+ *
+ * @see \Irabbi360\LaravelGoalCaptcha\Facades\GoalCaptcha
  */
-class LaravelGoalCaptcha extends Facade
+class LaravelGoalCaptcha extends GoalCaptcha
 {
-    protected static function getFacadeAccessor(): string
-    {
-        return \Irabbi360\LaravelGoalCaptcha\LaravelGoalCaptcha::class;
-    }
+    //
 }
+

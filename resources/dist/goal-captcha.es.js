@@ -1,4 +1,4 @@
-import { ref as S, onMounted as H, onBeforeUnmount as F, watch as q, openBlock as y, createElementBlock as k, createElementVNode as g, unref as p, createVNode as V, Transition as ee, withCtx as te, Fragment as j, renderList as ae, createCommentVNode as P, computed as T, normalizeClass as G, normalizeStyle as $, createStaticVNode as oe, withModifiers as U, readonly as E, toDisplayString as Y, createBlock as ne } from "vue";
+import { ref as S, onMounted as H, onBeforeUnmount as F, watch as q, openBlock as y, createElementBlock as k, createElementVNode as g, unref as p, createVNode as V, Transition as ee, withCtx as te, Fragment as j, renderList as ae, createCommentVNode as x, computed as T, normalizeClass as G, normalizeStyle as $, createStaticVNode as oe, withModifiers as U, readonly as E, toDisplayString as Y, createBlock as ne } from "vue";
 const X = /* @__PURE__ */ new Map();
 async function se(i) {
   return X.has(i) ? X.get(i) : new Promise((s, n) => {
@@ -88,8 +88,8 @@ class le {
     }
     const r = this.ctx;
     r.save();
-    const h = Math.round(v * 0.09), t = l + h, f = t + h + Math.round(v * 0.025), m = Math.round(v * 0.3), b = Math.round(v * 0.16), u = Math.round(v * 0.21), c = Math.round(v * 0.21), _ = Math.round(v * 0.055), M = Math.round(v * 0.4), w = 40 * Math.PI / 180, x = f + m + b, I = Math.round(c * 0.44);
-    r.fillStyle = "#111111", r.beginPath(), r.ellipse(o - c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.beginPath(), r.ellipse(o + c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.fillStyle = "#1c1c2e", r.fillRect(o - c * 0.75, x, I, u), r.fillRect(o + c * 0.75 - I, x, I, u), r.fillStyle = "#1c1c2e", r.fillRect(o - c, f + m, c * 2, b), r.fillStyle = "#f2f2f2", r.fillRect(o - c, f, c * 2, m);
+    const h = Math.round(v * 0.09), t = l + h, f = t + h + Math.round(v * 0.025), m = Math.round(v * 0.3), b = Math.round(v * 0.16), u = Math.round(v * 0.21), c = Math.round(v * 0.21), _ = Math.round(v * 0.055), M = Math.round(v * 0.4), w = 40 * Math.PI / 180, P = f + m + b, I = Math.round(c * 0.44);
+    r.fillStyle = "#111111", r.beginPath(), r.ellipse(o - c * 0.52, P + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.beginPath(), r.ellipse(o + c * 0.52, P + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.fillStyle = "#1c1c2e", r.fillRect(o - c * 0.75, P, I, u), r.fillRect(o + c * 0.75 - I, P, I, u), r.fillStyle = "#1c1c2e", r.fillRect(o - c, f + m, c * 2, b), r.fillStyle = "#f2f2f2", r.fillRect(o - c, f, c * 2, m);
     const J = Math.round(m * 0.26), Q = f + Math.round(m * 0.38);
     r.fillStyle = "#e63946", r.fillRect(o - c, Q, c * 2, J);
     const C = f + Math.round(m * 0.1), B = o - c - Math.round(M * Math.cos(w)), D = C - Math.round(M * Math.sin(w)), R = o + c + Math.round(M * Math.cos(w)), W = C - Math.round(M * Math.sin(w));
@@ -243,7 +243,7 @@ const L = (i, s) => {
                 ])
               ])
             ], -1))
-          ])) : P("", !0)
+          ])) : x("", !0)
         ]),
         _: 1
       })
@@ -293,7 +293,7 @@ const L = (i, s) => {
     function f(u) {
       if (!l.value) return;
       const c = u.touches ? u.touches[0].clientX : u.clientX, _ = e.value.getBoundingClientRect(), M = Math.max(d.value, Math.min(c - _.left, a.trackWidth - d.value));
-      o.value = M, n("drag-move", r.value);
+      o.value = M, n("drag-move", r.value, M);
     }
     function m() {
       l.value && (l.value = !1, window.removeEventListener("mousemove", f), window.removeEventListener("touchmove", f), window.removeEventListener("mouseup", m), window.removeEventListener("touchend", m), n("drag-end", r.value));
@@ -344,7 +344,7 @@ const L = (i, s) => {
         class: "gc-slider__fill",
         style: $(h.value)
       }, null, 4),
-      c[2] || (c[2] = oe('<div class="gc-slider__chevrons gc-slider__chevrons--left" aria-hidden="true" data-v-b3854d8c><span class="gc-slider__chev" data-v-b3854d8c>❮</span><span class="gc-slider__chev" data-v-b3854d8c>❮</span><span class="gc-slider__chev" data-v-b3854d8c>❮</span></div><div class="gc-slider__chevrons gc-slider__chevrons--right" aria-hidden="true" data-v-b3854d8c><span class="gc-slider__chev" data-v-b3854d8c>❯</span><span class="gc-slider__chev" data-v-b3854d8c>❯</span><span class="gc-slider__chev" data-v-b3854d8c>❯</span></div>', 2)),
+      c[2] || (c[2] = oe('<div class="gc-slider__chevrons gc-slider__chevrons--left" aria-hidden="true" data-v-d4fd89b3><span class="gc-slider__chev" data-v-d4fd89b3>❮</span><span class="gc-slider__chev" data-v-d4fd89b3>❮</span><span class="gc-slider__chev" data-v-d4fd89b3>❮</span></div><div class="gc-slider__chevrons gc-slider__chevrons--right" aria-hidden="true" data-v-d4fd89b3><span class="gc-slider__chev" data-v-d4fd89b3>❯</span><span class="gc-slider__chev" data-v-d4fd89b3>❯</span><span class="gc-slider__chev" data-v-d4fd89b3>❯</span></div>', 2)),
       g("div", {
         class: G(["gc-slider__handle", { "is-dragging": l.value }]),
         style: $({ left: v.value + "px" }),
@@ -369,7 +369,7 @@ const L = (i, s) => {
       ])], 38)
     ], 42, ve));
   }
-}, K = /* @__PURE__ */ L(me, [["__scopeId", "data-v-b3854d8c"]]);
+}, K = /* @__PURE__ */ L(me, [["__scopeId", "data-v-d4fd89b3"]]);
 function _e() {
   let i = [], s = null, n = !1;
   function a() {
@@ -475,11 +475,11 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
   key: 0,
   class: "gc-modal__verifying",
   "aria-live": "polite"
-}, Pe = {
+}, xe = {
   key: 1,
   class: "gc-modal__verifying gc-modal__verifying--failed",
   "aria-live": "assertive"
-}, xe = {
+}, Pe = {
   key: 2,
   class: "gc-modal__error-scene",
   role: "alert"
@@ -549,8 +549,8 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
       onDragEnd: t,
       retry: f
     } = ye(n.generateUrl, n.verifyUrl), m = S(null);
-    function b(c) {
-      m.value = c, h(c);
+    function b(c, _) {
+      m.value = c, h(_ ?? c);
     }
     function u(c) {
       m.value = c, t(c);
@@ -605,7 +605,7 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
                 y2: "18"
               })
             ], -1)
-          ])])) : P("", !0)
+          ])])) : x("", !0)
         ]),
         g("div", Me, [
           p(e) === "loading" ? (y(), k("div", we)) : p(d) ? (y(), k(j, { key: 1 }, [
@@ -620,15 +620,15 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
                 "aria-hidden": "true"
               }, null, -1),
               g("span", null, "Verifying…", -1)
-            ])])) : P("", !0),
-            p(e) === "failed" ? (y(), k("div", Pe, [..._[6] || (_[6] = [
+            ])])) : x("", !0),
+            p(e) === "failed" ? (y(), k("div", xe, [..._[6] || (_[6] = [
               g("span", {
                 class: "gc-icon-miss",
                 "aria-hidden": "true"
               }, "❌", -1),
               g("span", null, "Missed! Retrying…", -1)
-            ])])) : P("", !0)
-          ], 64)) : p(e) === "failed" ? (y(), k("div", xe, [
+            ])])) : x("", !0)
+          ], 64)) : p(e) === "failed" ? (y(), k("div", Pe, [
             _[7] || (_[7] = g("div", {
               class: "gc-modal__error-icon",
               "aria-hidden": "true"
@@ -658,14 +658,14 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
               class: "gc-btn-primary",
               onClick: _[2] || (_[2] = (...w) => p(f) && p(f)(...w))
             }, "↺ Try again")
-          ])) : P("", !0)
+          ])) : x("", !0)
         ]),
         p(o) ? (y(), k("input", {
           key: 0,
           type: "hidden",
           name: i.fieldName,
           value: p(o)
-        }, null, 8, Ge)) : P("", !0)
+        }, null, 8, Ge)) : x("", !0)
       ], 10, be);
     };
   }

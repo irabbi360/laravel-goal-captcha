@@ -16,7 +16,7 @@ use Irabbi360\LaravelGoalCaptcha\Contracts\MotionAnalyzerInterface;
  */
 final class MotionAnalyzer implements MotionAnalyzerInterface
 {
-    private const HUMAN_THRESHOLD = 50;
+    private const HUMAN_THRESHOLD = 28;
 
     // Milliseconds between points that looks "scripted" (too perfectly even)
     private const PERFECT_INTERVAL_TOLERANCE = 2;
@@ -60,11 +60,11 @@ final class MotionAnalyzer implements MotionAnalyzerInterface
         $variance = $this->variance($speeds);
 
         return match (true) {
-            $variance > 500  => 30,
-            $variance > 100  => 22,
-            $variance > 20   => 14,
-            $variance > 5    => 8,
-            default          => 0,
+            $variance > 200  => 30,
+            $variance > 50   => 22,
+            $variance > 10   => 16,
+            $variance > 2    => 10,
+            default          => 4,   // smooth drag is still human
         };
     }
 
@@ -85,10 +85,11 @@ final class MotionAnalyzer implements MotionAnalyzerInterface
         $jerkVariance = $this->variance($accelerations);
 
         return match (true) {
-            $jerkVariance > 200 => 25,
-            $jerkVariance > 50  => 18,
-            $jerkVariance > 10  => 10,
-            default             => 0,
+            $jerkVariance > 100 => 25,
+            $jerkVariance > 20  => 18,
+            $jerkVariance > 5   => 12,
+            $jerkVariance > 1   => 6,
+            default             => 2,   // minimal jerk = smooth human drag
         };
     }
 
@@ -111,7 +112,7 @@ final class MotionAnalyzer implements MotionAnalyzerInterface
         return match (true) {
             $reversals >= 3 => 20,
             $reversals >= 1 => 12,
-            default         => 0,
+            default         => 5,   // straight drag with no reversals is still human
         };
     }
 

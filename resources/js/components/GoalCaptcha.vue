@@ -146,9 +146,10 @@ const {
 
 const currentBallX = ref(null)
 
-function handleDragMove(x) {
-  currentBallX.value = x
-  onDragMove(x)
+function handleDragMove(ballPos, rawPos) {
+  currentBallX.value = ballPos
+  // Record raw handle position (not scaled canvas coord) for human-motion analysis
+  onDragMove(rawPos ?? ballPos)
 }
 
 function handleDragEnd(x) {

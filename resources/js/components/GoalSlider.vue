@@ -131,7 +131,8 @@ function onMove(e) {
   const rect      = trackEl.value.getBoundingClientRect()
   const relativeX = Math.max(HANDLE_HALF.value, Math.min(clientX - rect.left, props.trackWidth - HANDLE_HALF.value))
   currentX.value  = relativeX
-  emit('drag-move', ballX.value)
+  // emit ballX (canvas coord) + raw handle X so the parent can feed raw into the motion tracker
+  emit('drag-move', ballX.value, relativeX)
 }
 
 function endDrag() {

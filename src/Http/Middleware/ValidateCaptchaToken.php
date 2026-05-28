@@ -29,9 +29,8 @@ final class ValidateCaptchaToken
             ?? $request->header('X-Captcha-Token');
 
         if (empty($token) || ! $this->tokenManager->consume((string) $token)) {
-            return response()->json([
-                'success' => false,
-                'code'    => 'captcha_required',
+            return redirect()->back()->with([
+                'error'    => 'Captcha is Required',
                 'message' => 'A valid CAPTCHA token is required.',
             ], 403);
         }

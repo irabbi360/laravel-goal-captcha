@@ -410,81 +410,26 @@ export class SceneRenderer {
     const ringY   = h * 0.40
     const cy      = Math.round(groundY + prog * (ringY - groundY))
 
-    if (img) {
-      this.ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2)
-      return
-    }
+    const ctx      = this.ctx
+    const diameter = r * 2
+    const fontSize = Math.round(diameter * 0.92)  // emoji fills ~92% of diameter
 
-    const ctx = this.ctx
     ctx.save()
 
-    // Clip to canvas bounds
+    // Clip to canvas bounds so ball can hang off edges naturally
     ctx.beginPath()
     ctx.rect(0, 0, this.canvas.width, this.canvas.height)
     ctx.clip()
 
-    // Drop shadow ellipse
-    ctx.fillStyle = 'rgba(0,0,0,0.22)'
-    ctx.beginPath()
-    ctx.ellipse(cx + r * 0.05, cy + r * 0.88, r * 0.75, r * 0.18, 0, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Sphere base — radial gradient for 3-D sheen
-    const sGrad = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.32, r * 0.04, cx, cy, r)
-    sGrad.addColorStop(0,    '#ffffff')
-    sGrad.addColorStop(0.38, '#f0f0f0')
-    sGrad.addColorStop(0.75, '#d4d4d4')
-    sGrad.addColorStop(1,    '#aaaaaa')
-    ctx.fillStyle = sGrad
-    ctx.beginPath()
-    ctx.arc(cx, cy, r, 0, Math.PI * 2)
-    ctx.fill()
-
-    // ── Classic Telstar-style patches (clipped to sphere) ──
-    ctx.save()
-    ctx.beginPath()
-    ctx.arc(cx, cy, r - 0.5, 0, Math.PI * 2)
-    ctx.clip()
-
-    ctx.fillStyle = '#111111'
-
-    // Centre pentagon
-    _drawPentagon(ctx, cx, cy, r * 0.28)
-
-    // 5 surrounding pentagons at 72° steps (top = −90°)
-    const pDist  = r * 0.58
-    const patchR = r * 0.23
-    for (let i = 0; i < 5; i++) {
-      const a = (i * 72 - 90) * Math.PI / 180
-      _drawPentagon(ctx, cx + pDist * Math.cos(a), cy + pDist * Math.sin(a), patchR)
+    if (img) {
+      ctx.drawImage(img, cx - r, cy - r, diameter, diameter)
+    } else {
+      // Draw ⚽ emoji centred at (cx, cy)
+      ctx.font         = `${fontSize}px serif`
+      ctx.textAlign    = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('⚽', cx, cy)
     }
-
-    // Seam lines from centre patch edge to each surrounding patch
-    ctx.strokeStyle = '#333333'
-    ctx.lineWidth   = Math.max(0.8, r * 0.055)
-    ctx.lineCap     = 'round'
-    for (let i = 0; i < 5; i++) {
-      const a = (i * 72 - 90) * Math.PI / 180
-      ctx.beginPath()
-      ctx.moveTo(cx + r * 0.29 * Math.cos(a), cy + r * 0.29 * Math.sin(a))
-      ctx.lineTo(cx + pDist * 0.72 * Math.cos(a), cy + pDist * 0.72 * Math.sin(a))
-      ctx.stroke()
-    }
-
-    ctx.restore()
-
-    // Sphere outline
-    ctx.strokeStyle = '#777777'
-    ctx.lineWidth   = 0.8
-    ctx.beginPath()
-    ctx.arc(cx, cy, r, 0, Math.PI * 2)
-    ctx.stroke()
-
-    // Specular highlight (small glossy ellipse top-left)
-    ctx.fillStyle = 'rgba(255,255,255,0.55)'
-    ctx.beginPath()
-    ctx.ellipse(cx - r * 0.28, cy - r * 0.30, r * 0.20, r * 0.13, -Math.PI / 5, 0, Math.PI * 2)
-    ctx.fill()
 
     ctx.restore()
   }

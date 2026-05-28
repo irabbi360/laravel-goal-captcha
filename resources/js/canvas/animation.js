@@ -81,3 +81,41 @@ export function bounce(min, max, period, onUpdate) {
     if (rafId !== null) cancelAnimationFrame(rafId)
   }
 }
+
+/**
+ * Random-step walk: tweens keeper to a new random offset within ±range,
+ * holds for a random pause, then picks the next target — indefinitely.
+ *
+ * @param {number}   range     max abs offset in px
+ * @param {number}   onUpdate  called with current offset value
+ * @returns {Function} stop function
+ */
+export function randomWalk(range, onUpdate) {
+  let active     = true
+  let cancelTween = null
+  let current    = 0
+  let timeoutId  = null
+
+  function step() {
+    if (!active) return
+    const target   = (Math.random() * 2 - 1) * range          // -range … +range
+    const duration = 450 + Math.random() * 550                // 450–1000 ms slide
+    const hold     = 600 + Math.random() * 900                // 600–1500 ms pause
+
+    cancelTween = tween(current, target, duration, (val) => {
+      current = val
+      onUpdate(val)
+    }, () => {
+      if (!active) return
+      timeoutId = setTimeout(step, hold)
+    })
+  }
+
+  step()
+
+  return () => {
+    active = false
+    cancelTween?.()
+    if (timeoutId !== null) clearTimeout(timeoutId)
+  }
+}

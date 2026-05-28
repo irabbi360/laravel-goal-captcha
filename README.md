@@ -177,6 +177,94 @@ resources/js/
 └── index.js            Vue plugin + Blade auto-mount
 ```
 
+```
+<link  rel="stylesheet" href="{{ asset('vendor/goal-captcha/goal-captcha.css') }}">
+<script src="{{ asset('vendor/goal-captcha/goal-captcha.umd.js') }}" defer></script>
+```
+
+```
+<form id="contact-form" method="POST" action="/contact">
+    @csrf
+
+    <input type="text" name="name" required>
+    <input type="email" name="email" required>
+
+    {{-- CAPTCHA mounts here; on solve it injects a hidden captcha_token input --}}
+    <div id="goal-captcha"></div>
+
+    <button type="submit" id="submit-btn" disabled>Submit</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const { initMount } = window.GoalCaptcha
+
+    initMount('#goal-captcha', {
+        fieldName: 'captcha_token',   // hidden input name injected into the form
+    })
+
+    // Enable submit only after CAPTCHA is solved
+    document.getElementById('goal-captcha').addEventListener('gc:verified', () => {
+        document.getElementById('submit-btn').disabled = false
+    })
+})
+</script>
+```
+
+```php
+<?php
+// routes/web.php
+use Illuminate\Support\Facades\Route;
+
+Route::post('/contact', [ContactController::class, 'store'])
+    ->middleware('goal-captcha');
+```
+
+Use in your form component:
+```vue
+<template>
+  <form @submit.prevent="submitForm">
+    <input v-model="form.name"  type="text"  required />
+    <input v-model="form.email" type="email" required />
+
+    <GoalCaptcha
+      field-name="captcha_token"
+      @verified="onCaptchaSolved"
+      @failed="captchaToken = null"
+    />
+
+    <button type="submit" :disabled="!captchaToken">Submit</button>
+  </form>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const form         = ref({ name: '', email: '' })
+const captchaToken = ref(null)
+
+function onCaptchaSolved(token) {
+  captchaToken.value = token
+}
+
+async function submitForm() {
+  if (!captchaToken.value) return
+
+  await fetch('/contact', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    },
+    body: JSON.stringify({
+      ...form.value,
+      captcha_token: captchaToken.value,  // ← send token with form data
+    }),
+  })
+}
+</script>
+```
+
 ---
 
 ## Testing

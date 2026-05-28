@@ -254,77 +254,131 @@ export class SceneRenderer {
     const ctx = this.ctx
     ctx.save()
 
-    // ─── Proportions ─────────────────────────────────────────────
-    const headR      = Math.round(kH * 0.09)
-    const headCy     = kTop + headR
-    const shoulderY  = headCy + headR + Math.round(kH * 0.025)
-    const torsoH     = Math.round(kH * 0.30)
-    const shortsH    = Math.round(kH * 0.16)
-    const legH       = Math.round(kH * 0.21)
-    const bw         = Math.round(kH * 0.21)   // half-torso width
-    const armW       = Math.round(kH * 0.055)
-    const armLen     = Math.round(kH * 0.40)
-    const armAngle   = 40 * Math.PI / 180
-    const legY       = shoulderY + torsoH + shortsH
-    const legW       = Math.round(bw * 0.44)
+    // ─── Proportions (all relative to kH) ──────────────────────────
+    const headR     = Math.round(kH * 0.09)
+    const headCy    = kTop + headR
+    const neckH     = Math.round(kH * 0.035)
+    const neckTop   = headCy + headR
+    const shoulderY = neckTop + neckH
+    const torsoH    = Math.round(kH * 0.27)
+    const shortsH   = Math.round(kH * 0.13)
+    const thighH    = Math.round(kH * 0.12)
+    const sockH     = Math.round(kH * 0.14)
+    const bw        = Math.round(kH * 0.22)   // half-torso width
+    const armAngle  = 22 * Math.PI / 180      // nearly horizontal arms
+    const armLen    = Math.round(kH * 0.43)
+    const armW      = Math.round(kH * 0.058)
+    const shortsY   = shoulderY + torsoH
+    const thighY    = shortsY + shortsH
+    const sockY     = thighY + thighH
+    const legSpread = Math.round(bw * 1.05)   // foot x-offset from kcx
+    const legW      = Math.round(bw * 0.48)   // width of each leg/sock
 
-    // ── Shoes ─────────────────────────────────────────────────────
+    // ── Shoes ───────────────────────────────────────────────────
     ctx.fillStyle = '#111111'
     ctx.beginPath()
-    ctx.ellipse(kcx - bw * 0.52, legY + legH + headR * 0.35, headR * 0.80, headR * 0.35, 0, 0, Math.PI * 2)
+    ctx.ellipse(kcx - legSpread, sockY + sockH + headR * 0.30, headR * 0.90, headR * 0.34, 0, 0, Math.PI * 2)
     ctx.fill()
     ctx.beginPath()
-    ctx.ellipse(kcx + bw * 0.52, legY + legH + headR * 0.35, headR * 0.80, headR * 0.35, 0, 0, Math.PI * 2)
+    ctx.ellipse(kcx + legSpread, sockY + sockH + headR * 0.30, headR * 0.90, headR * 0.34, 0, 0, Math.PI * 2)
     ctx.fill()
 
-    // ── Legs ──────────────────────────────────────────────────────
-    ctx.fillStyle = '#1c1c2e'
-    ctx.fillRect(kcx - bw * 0.75,            legY, legW, legH)
-    ctx.fillRect(kcx + bw * 0.75 - legW,     legY, legW, legH)
+    // ── Socks (white with red stripe near bottom) ─────────────────────
+    ctx.fillStyle = '#f0f0f0'
+    ctx.fillRect(kcx - legSpread - legW / 2, sockY, legW, sockH)
+    ctx.fillRect(kcx + legSpread - legW / 2, sockY, legW, sockH)
+    // Red stripe ~70% down the sock
+    const sockStripeH = Math.round(sockH * 0.20)
+    ctx.fillStyle = '#e63946'
+    ctx.fillRect(kcx - legSpread - legW / 2, sockY + sockH * 0.68, legW, sockStripeH)
+    ctx.fillRect(kcx + legSpread - legW / 2, sockY + sockH * 0.68, legW, sockStripeH)
 
-    // ── Shorts ────────────────────────────────────────────────────
-    ctx.fillStyle = '#1c1c2e'
-    ctx.fillRect(kcx - bw, shoulderY + torsoH, bw * 2, shortsH)
+    // ── Thighs (skin-toned, between shorts and socks) ────────────────
+    ctx.fillStyle = '#f0c090'
+    ctx.fillRect(kcx - legSpread - legW / 2, thighY, legW, thighH)
+    ctx.fillRect(kcx + legSpread - legW / 2, thighY, legW, thighH)
 
-    // ── Jersey (white) ────────────────────────────────────────────
-    ctx.fillStyle = '#f2f2f2'
+    // ── Shorts (dark, trapezoid wider at bottom — spread stance) ───────
+    ctx.fillStyle = '#1a1a2e'
+    ctx.beginPath()
+    ctx.moveTo(kcx - bw,                         shortsY)
+    ctx.lineTo(kcx + bw,                         shortsY)
+    ctx.lineTo(kcx + legSpread + legW / 2,       thighY)
+    ctx.lineTo(kcx - legSpread - legW / 2,       thighY)
+    ctx.closePath()
+    ctx.fill()
+
+    // ── Jersey body (white) ───────────────────────────────────────
+    ctx.fillStyle = '#f4f4f4'
     ctx.fillRect(kcx - bw, shoulderY, bw * 2, torsoH)
 
-    // Red chest stripe
-    const stripeH = Math.round(torsoH * 0.26)
-    const stripeY = shoulderY + Math.round(torsoH * 0.38)
+    // Black collar band at top of jersey
+    ctx.fillStyle = '#1a1a2e'
+    ctx.fillRect(kcx - bw * 0.45, shoulderY, bw * 0.90, Math.round(kH * 0.025))
+
+    // Red rectangular chest patch
+    const patchW = Math.round(bw * 1.30)
+    const patchH = Math.round(torsoH * 0.27)
+    const patchY = shoulderY + Math.round(torsoH * 0.36)
     ctx.fillStyle = '#e63946'
-    ctx.fillRect(kcx - bw, stripeY, bw * 2, stripeH)
+    ctx.fillRect(kcx - patchW / 2, patchY, patchW, patchH)
 
-    // ── Arms ──────────────────────────────────────────────────────
-    const shoulderMidY = shoulderY + Math.round(torsoH * 0.10)
-    const lEndX = kcx - bw - Math.round(armLen * Math.cos(armAngle))
-    const lEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
-    const rEndX = kcx + bw + Math.round(armLen * Math.cos(armAngle))
-    const rEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
+    // ── Arms (long white sleeves) ───────────────────────────────
+    const shoulderMidY = shoulderY + Math.round(torsoH * 0.06)
+    const lArmEndX = kcx - bw - Math.round(armLen * Math.cos(armAngle))
+    const lArmEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
+    const rArmEndX = kcx + bw + Math.round(armLen * Math.cos(armAngle))
+    const rArmEndY = shoulderMidY - Math.round(armLen * Math.sin(armAngle))
 
-    ctx.strokeStyle = '#f2f2f2'
+    ctx.strokeStyle = '#f4f4f4'
     ctx.lineWidth   = armW
     ctx.lineCap     = 'round'
-    ctx.beginPath(); ctx.moveTo(kcx - bw, shoulderMidY); ctx.lineTo(lEndX, lEndY); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(kcx + bw, shoulderMidY); ctx.lineTo(rEndX, rEndY); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(kcx - bw, shoulderMidY); ctx.lineTo(lArmEndX, lArmEndY); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(kcx + bw, shoulderMidY); ctx.lineTo(rArmEndX, rArmEndY); ctx.stroke()
 
-    // Gloves
-    ctx.fillStyle = '#c8d5e2'
-    ctx.beginPath(); ctx.arc(lEndX, lEndY, armW * 1.6, 0, Math.PI * 2); ctx.fill()
-    ctx.beginPath(); ctx.arc(rEndX, rEndY, armW * 1.6, 0, Math.PI * 2); ctx.fill()
+    // Black wristbands (thick band near end of sleeve)
+    const wbLen  = Math.round(armLen * 0.14)
+    const lWbX   = lArmEndX + Math.round(wbLen * Math.cos(armAngle))
+    const lWbY   = lArmEndY + Math.round(wbLen * Math.sin(armAngle))
+    const rWbX   = rArmEndX - Math.round(wbLen * Math.cos(armAngle))
+    const rWbY   = rArmEndY + Math.round(wbLen * Math.sin(armAngle))
+    ctx.strokeStyle = '#111111'
+    ctx.lineWidth   = armW + 2
+    ctx.beginPath(); ctx.moveTo(lWbX, lWbY); ctx.lineTo(lArmEndX, lArmEndY); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(rWbX, rWbY); ctx.lineTo(rArmEndX, rArmEndY); ctx.stroke()
 
-    // ── Head ──────────────────────────────────────────────────────
-    // Face
+    // White gloves
+    const gloveR = Math.round(armW * 1.9)
+    ctx.fillStyle = '#e6e6e6'
+    ctx.beginPath(); ctx.arc(lArmEndX, lArmEndY, gloveR, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(rArmEndX, rArmEndY, gloveR, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = '#aaaaaa'
+    ctx.lineWidth   = 1
+    ctx.beginPath(); ctx.arc(lArmEndX, lArmEndY, gloveR, 0, Math.PI * 2); ctx.stroke()
+    ctx.beginPath(); ctx.arc(rArmEndX, rArmEndY, gloveR, 0, Math.PI * 2); ctx.stroke()
+
+    // ── Neck ──────────────────────────────────────────────────────
+    const neckW = Math.round(headR * 0.55)
+    ctx.fillStyle = '#f0c090'
+    ctx.fillRect(kcx - neckW / 2, neckTop, neckW, neckH + 2)
+
+    // ── Head / Face ─────────────────────────────────────────────
+    // Skin
     ctx.fillStyle = '#f0c090'
     ctx.beginPath(); ctx.arc(kcx, headCy, headR, 0, Math.PI * 2); ctx.fill()
 
-    // Hair (dark, top half arc)
+    // Dark hair cap (top half)
     ctx.fillStyle = '#1a0f08'
     ctx.beginPath()
-    ctx.arc(kcx, headCy, headR, Math.PI, 0)
+    ctx.arc(kcx, headCy, headR, Math.PI * 1.05, Math.PI * 1.95)
+    ctx.lineTo(kcx, headCy)
     ctx.closePath()
     ctx.fill()
+
+    // Ears
+    ctx.fillStyle = '#e8b07a'
+    ctx.beginPath(); ctx.ellipse(kcx - headR * 0.95, headCy + headR * 0.10, headR * 0.13, headR * 0.20, 0, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.ellipse(kcx + headR * 0.95, headCy + headR * 0.10, headR * 0.13, headR * 0.20, 0, 0, Math.PI * 2); ctx.fill()
 
     // Eyes
     ctx.fillStyle = '#1a0f08'

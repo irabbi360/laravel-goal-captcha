@@ -194,7 +194,7 @@ onBeforeUnmount(() => {
   position:       absolute;
   top:            0;
   height:         100%;
-  background:     linear-gradient(90deg, #60a5fa, #3b82f6);
+  /* background:     linear-gradient(90deg, #60a5fa, #3b82f6); */
   pointer-events: none;
   transition:     width 0.04s linear, left 0.04s linear;
 }

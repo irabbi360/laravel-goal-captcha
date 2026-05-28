@@ -38,7 +38,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { SceneRenderer } from '../canvas/renderer.js'
-import { bounce }        from '../canvas/animation.js'
+import { randomWalk }    from '../canvas/animation.js'
 
 const props = defineProps({
   captchaData: {
@@ -66,12 +66,9 @@ onMounted(async () => {
   renderer = new SceneRenderer(canvasEl.value, props.captchaData)
   await renderer.preload()
 
-  // Animate goalkeeper idle bounce
-  const baseOffset = props.captchaData.scene?.keeper_offset_x ?? 0
-  stopBounce = bounce(
-    baseOffset - 8,
-    baseOffset + 8,
-    2400,
+  // Goalkeeper random left/right walk animation
+  stopBounce = randomWalk(
+    50,   // ±50 px around keeperBaseX — stays comfortably in their half of the goal
     (offset) => {
       if (renderer) {
         renderer.keeperOffsetX = offset

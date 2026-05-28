@@ -1,4 +1,4 @@
-import { ref as S, onMounted as H, onBeforeUnmount as F, watch as q, openBlock as b, createElementBlock as k, createElementVNode as g, unref as p, createVNode as V, Transition as ee, withCtx as te, Fragment as j, renderList as ae, createCommentVNode as P, computed as T, normalizeClass as G, normalizeStyle as $, createStaticVNode as oe, withModifiers as U, readonly as E, toDisplayString as Y, createBlock as ne } from "vue";
+import { ref as S, onMounted as H, onBeforeUnmount as F, watch as q, openBlock as y, createElementBlock as k, createElementVNode as g, unref as p, createVNode as V, Transition as ee, withCtx as te, Fragment as j, renderList as ae, createCommentVNode as P, computed as T, normalizeClass as G, normalizeStyle as $, createStaticVNode as oe, withModifiers as U, readonly as E, toDisplayString as Y, createBlock as ne } from "vue";
 const X = /* @__PURE__ */ new Map();
 async function se(i) {
   return X.has(i) ? X.get(i) : new Promise((s, n) => {
@@ -71,13 +71,13 @@ class le {
       this.ctx.drawImage(a, e, l, o - e, d - l);
       return;
     }
-    const t = this.ctx, f = e + r, m = o - r, y = l - h;
+    const t = this.ctx, f = e + r, m = o - r, b = l - h;
     t.save(), t.save(), t.beginPath(), t.rect(e + v * 0.5, l + v * 0.5, o - e - v, d - l - v * 0.5), t.clip(), t.fillStyle = "rgba(160,200,230,0.07)", t.fillRect(e, l, o - e, d - l), t.strokeStyle = "rgba(170,205,235,0.42)", t.lineWidth = 0.8;
     for (let u = e; u <= o; u += 20)
       t.beginPath(), t.moveTo(u, l), t.lineTo(u, d), t.stroke();
     for (let u = l; u <= d; u += 15)
       t.beginPath(), t.moveTo(e, u), t.lineTo(o, u), t.stroke();
-    t.restore(), t.strokeStyle = "rgba(210,225,240,0.72)", t.lineWidth = 3.5, t.lineCap = "round", t.beginPath(), t.moveTo(e, l), t.lineTo(f, y), t.stroke(), t.beginPath(), t.moveTo(o, l), t.lineTo(m, y), t.stroke(), t.beginPath(), t.moveTo(f, y), t.lineTo(m, y), t.stroke(), t.strokeStyle = "rgba(190,215,235,0.48)", t.lineWidth = 2.5, t.beginPath(), t.moveTo(f, y), t.lineTo(f, d), t.stroke(), t.beginPath(), t.moveTo(m, y), t.lineTo(m, d), t.stroke(), t.strokeStyle = "#ffffff", t.lineWidth = v, t.lineCap = "square", t.beginPath(), t.moveTo(e, l), t.lineTo(o, l), t.stroke(), t.beginPath(), t.moveTo(e, l), t.lineTo(e, d), t.stroke(), t.beginPath(), t.moveTo(o, l), t.lineTo(o, d), t.stroke(), t.restore();
+    t.restore(), t.strokeStyle = "rgba(210,225,240,0.72)", t.lineWidth = 3.5, t.lineCap = "round", t.beginPath(), t.moveTo(e, l), t.lineTo(f, b), t.stroke(), t.beginPath(), t.moveTo(o, l), t.lineTo(m, b), t.stroke(), t.beginPath(), t.moveTo(f, b), t.lineTo(m, b), t.stroke(), t.strokeStyle = "rgba(190,215,235,0.48)", t.lineWidth = 2.5, t.beginPath(), t.moveTo(f, b), t.lineTo(f, d), t.stroke(), t.beginPath(), t.moveTo(m, b), t.lineTo(m, d), t.stroke(), t.strokeStyle = "#ffffff", t.lineWidth = v, t.lineCap = "square", t.beginPath(), t.moveTo(e, l), t.lineTo(o, l), t.stroke(), t.beginPath(), t.moveTo(e, l), t.lineTo(e, d), t.stroke(), t.beginPath(), t.moveTo(o, l), t.lineTo(o, d), t.stroke(), t.restore();
   }
   _drawGoalkeeper(s, n, a) {
     const e = this.images.goalkeeper, o = Math.round(this.keeperBaseX + this.keeperOffsetX), l = Math.round(a * 0.16), v = Math.round(a * 0.89) - l;
@@ -88,8 +88,8 @@ class le {
     }
     const r = this.ctx;
     r.save();
-    const h = Math.round(v * 0.09), t = l + h, f = t + h + Math.round(v * 0.025), m = Math.round(v * 0.3), y = Math.round(v * 0.16), u = Math.round(v * 0.21), c = Math.round(v * 0.21), _ = Math.round(v * 0.055), M = Math.round(v * 0.4), w = 40 * Math.PI / 180, x = f + m + y, I = Math.round(c * 0.44);
-    r.fillStyle = "#111111", r.beginPath(), r.ellipse(o - c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.beginPath(), r.ellipse(o + c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.fillStyle = "#1c1c2e", r.fillRect(o - c * 0.75, x, I, u), r.fillRect(o + c * 0.75 - I, x, I, u), r.fillStyle = "#1c1c2e", r.fillRect(o - c, f + m, c * 2, y), r.fillStyle = "#f2f2f2", r.fillRect(o - c, f, c * 2, m);
+    const h = Math.round(v * 0.09), t = l + h, f = t + h + Math.round(v * 0.025), m = Math.round(v * 0.3), b = Math.round(v * 0.16), u = Math.round(v * 0.21), c = Math.round(v * 0.21), _ = Math.round(v * 0.055), M = Math.round(v * 0.4), w = 40 * Math.PI / 180, x = f + m + b, I = Math.round(c * 0.44);
+    r.fillStyle = "#111111", r.beginPath(), r.ellipse(o - c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.beginPath(), r.ellipse(o + c * 0.52, x + u + h * 0.35, h * 0.8, h * 0.35, 0, 0, Math.PI * 2), r.fill(), r.fillStyle = "#1c1c2e", r.fillRect(o - c * 0.75, x, I, u), r.fillRect(o + c * 0.75 - I, x, I, u), r.fillStyle = "#1c1c2e", r.fillRect(o - c, f + m, c * 2, b), r.fillStyle = "#f2f2f2", r.fillRect(o - c, f, c * 2, m);
     const J = Math.round(m * 0.26), Q = f + Math.round(m * 0.38);
     r.fillStyle = "#e63946", r.fillRect(o - c, Q, c * 2, J);
     const C = f + Math.round(m * 0.1), B = o - c - Math.round(M * Math.cos(w)), D = C - Math.round(M * Math.sin(w)), R = o + c + Math.round(M * Math.cos(w)), W = C - Math.round(M * Math.sin(w));
@@ -119,10 +119,10 @@ class le {
     t.save(), t.beginPath(), t.rect(0, 0, this.canvas.width, this.canvas.height), t.clip(), t.fillStyle = "rgba(0,0,0,0.22)", t.beginPath(), t.ellipse(e + a * 0.05, h + a * 0.88, a * 0.75, a * 0.18, 0, 0, Math.PI * 2), t.fill();
     const f = t.createRadialGradient(e - a * 0.32, h - a * 0.32, a * 0.04, e, h, a);
     f.addColorStop(0, "#ffffff"), f.addColorStop(0.38, "#f0f0f0"), f.addColorStop(0.75, "#d4d4d4"), f.addColorStop(1, "#aaaaaa"), t.fillStyle = f, t.beginPath(), t.arc(e, h, a, 0, Math.PI * 2), t.fill(), t.save(), t.beginPath(), t.arc(e, h, a - 0.5, 0, Math.PI * 2), t.clip(), t.fillStyle = "#111111", N(t, e, h, a * 0.28);
-    const m = a * 0.58, y = a * 0.23;
+    const m = a * 0.58, b = a * 0.23;
     for (let u = 0; u < 5; u++) {
       const c = (u * 72 - 90) * Math.PI / 180;
-      N(t, e + m * Math.cos(c), h + m * Math.sin(c), y);
+      N(t, e + m * Math.cos(c), h + m * Math.sin(c), b);
     }
     t.strokeStyle = "#333333", t.lineWidth = Math.max(0.8, a * 0.055), t.lineCap = "round";
     for (let u = 0; u < 5; u++) {
@@ -197,7 +197,7 @@ const L = (i, s) => {
       (t) => {
         a && t !== null && a.setBallX(t);
       }
-    ), (t, f) => (b(), k("div", ie, [
+    ), (t, f) => (y(), k("div", ie, [
       g("canvas", {
         ref_key: "canvasEl",
         ref: n,
@@ -209,9 +209,9 @@ const L = (i, s) => {
       }, null, 8, ce),
       V(ee, { name: "gc-success" }, {
         default: te(() => [
-          i.showSuccess ? (b(), k("div", de, [
+          i.showSuccess ? (y(), k("div", de, [
             g("div", ue, [
-              (b(), k(j, null, ae(24, (m) => g("span", {
+              (y(), k(j, null, ae(24, (m) => g("span", {
                 key: m,
                 class: "gc-confetti__piece",
                 "data-i": m
@@ -298,14 +298,14 @@ const L = (i, s) => {
     function m() {
       l.value && (l.value = !1, window.removeEventListener("mousemove", f), window.removeEventListener("touchmove", f), window.removeEventListener("mouseup", m), window.removeEventListener("touchend", m), n("drag-end", r.value));
     }
-    function y(u) {
+    function b(u) {
       if (a.disabled) return;
       const c = 5;
       u.key === "ArrowRight" ? (l.value || (l.value = !0, n("drag-start")), o.value = Math.min(o.value + c, a.trackWidth - d.value), n("drag-move", r.value)) : u.key === "ArrowLeft" ? (l.value || (l.value = !0, n("drag-start")), o.value = Math.max(o.value - c, d.value), n("drag-move", r.value)) : (u.key === "Enter" || u.key === " ") && l.value && m();
     }
     return F(() => {
       window.removeEventListener("mousemove", f), window.removeEventListener("touchmove", f), window.removeEventListener("mouseup", m), window.removeEventListener("touchend", m);
-    }), (u, c) => i.success ? (b(), k("div", ge, [...c[0] || (c[0] = [
+    }), (u, c) => i.success ? (y(), k("div", ge, [...c[0] || (c[0] = [
       g("div", { class: "gc-slider__success-check" }, [
         g("svg", {
           viewBox: "0 0 44 44",
@@ -327,7 +327,7 @@ const L = (i, s) => {
           })
         ])
       ], -1)
-    ])])) : (b(), k("div", {
+    ])])) : (y(), k("div", {
       key: 1,
       class: G(["gc-slider", { "gc-slider--disabled": i.disabled, "gc-slider--dragging": l.value }]),
       ref_key: "trackEl",
@@ -338,7 +338,7 @@ const L = (i, s) => {
       "aria-valuemax": i.trackWidth,
       "aria-label": "Drag the ball to score a goal",
       tabindex: i.disabled ? -1 : 0,
-      onKeydown: y
+      onKeydown: b
     }, [
       g("div", {
         class: "gc-slider__fill",
@@ -434,7 +434,7 @@ function ye(i, s) {
   async function h(f) {
     if (n.value !== "dragging") return;
     l.stop(), n.value = "verifying";
-    const m = l.getTrack(), y = l.getElapsed();
+    const m = l.getTrack(), b = l.getElapsed();
     try {
       const c = await (await fetch(s, {
         method: "POST",
@@ -443,7 +443,7 @@ function ye(i, s) {
         body: JSON.stringify({
           captcha_id: o.value.captcha_id,
           final_x: Math.round(f),
-          drag_time: y,
+          drag_time: b,
           movement_track: m
         })
       })).json();
@@ -476,19 +476,23 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
   class: "gc-modal__verifying",
   "aria-live": "polite"
 }, Pe = {
+  key: 1,
+  class: "gc-modal__verifying gc-modal__verifying--failed",
+  "aria-live": "assertive"
+}, xe = {
   key: 2,
   class: "gc-modal__error-scene",
   role: "alert"
-}, xe = { class: "gc-modal__error-msg" }, Ce = {
+}, Ce = { class: "gc-modal__error-msg" }, Te = {
   key: 3,
   class: "gc-modal__idle"
-}, Te = { class: "gc-modal__slider-wrap" }, Ee = {
+}, Ee = { class: "gc-modal__slider-wrap" }, Ie = {
   key: 1,
   class: "gc-modal__slider-skeleton"
-}, Ie = {
+}, Xe = {
   key: 2,
   class: "gc-modal__error-actions"
-}, Xe = ["name", "value"], Z = {
+}, Ge = ["name", "value"], Z = {
   __name: "GoalCaptcha",
   props: {
     generateUrl: {
@@ -545,7 +549,7 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
       onDragEnd: t,
       retry: f
     } = ye(n.generateUrl, n.verifyUrl), m = S(null);
-    function y(c) {
+    function b(c) {
       m.value = c, h(c);
     }
     function u(c) {
@@ -553,12 +557,14 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
     }
     return q(e, (c) => {
       var _;
-      c === "success" && (m.value = ((_ = d.value) == null ? void 0 : _.target_x) ?? m.value, a("verified", o.value)), c === "failed" && a("failed", l.value), c === "ready" && a("loaded", d.value);
+      c === "success" && (m.value = ((_ = d.value) == null ? void 0 : _.target_x) ?? m.value, a("verified", o.value)), c === "failed" && (a("failed", l.value), d.value && setTimeout(() => {
+        m.value = null, f();
+      }, 1400)), c === "ready" && a("loaded", d.value);
     }), H(() => {
       n.autoLoad && v();
     }), (c, _) => {
       var M;
-      return b(), k("div", {
+      return y(), k("div", {
         class: G(["gc-modal", [`gc-modal--${i.theme}`, `gc-modal--${i.difficulty}`]]),
         "data-state": p(e),
         role: "dialog",
@@ -570,7 +576,7 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
             g("h2", { class: "gc-modal__title" }, "Confirm you're not a robot"),
             g("p", { class: "gc-modal__subtitle" }, "Drag the slider left or right to score a goal")
           ], -1)),
-          i.closable ? (b(), k("button", {
+          i.closable ? (y(), k("button", {
             key: 0,
             type: "button",
             class: "gc-modal__close",
@@ -602,26 +608,33 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
           ])])) : P("", !0)
         ]),
         g("div", Me, [
-          p(e) === "loading" ? (b(), k("div", we)) : p(d) ? (b(), k(j, { key: 1 }, [
+          p(e) === "loading" ? (y(), k("div", we)) : p(d) ? (y(), k(j, { key: 1 }, [
             V(z, {
               "captcha-data": p(d),
               "ball-x": m.value,
               "show-success": p(e) === "success"
             }, null, 8, ["captcha-data", "ball-x", "show-success"]),
-            p(e) === "verifying" ? (b(), k("div", Se, [..._[5] || (_[5] = [
+            p(e) === "verifying" ? (y(), k("div", Se, [..._[5] || (_[5] = [
               g("span", {
                 class: "gc-spinner",
                 "aria-hidden": "true"
               }, null, -1),
               g("span", null, "Verifying…", -1)
+            ])])) : P("", !0),
+            p(e) === "failed" ? (y(), k("div", Pe, [..._[6] || (_[6] = [
+              g("span", {
+                class: "gc-icon-miss",
+                "aria-hidden": "true"
+              }, "❌", -1),
+              g("span", null, "Missed! Retrying…", -1)
             ])])) : P("", !0)
-          ], 64)) : p(e) === "failed" ? (b(), k("div", Pe, [
-            _[6] || (_[6] = g("div", {
+          ], 64)) : p(e) === "failed" ? (y(), k("div", xe, [
+            _[7] || (_[7] = g("div", {
               class: "gc-modal__error-icon",
               "aria-hidden": "true"
             }, "⚽", -1)),
-            g("p", xe, Y(p(l) ?? "Verification failed. Please try again."), 1)
-          ])) : (b(), k("div", Ce, [
+            g("p", Ce, Y(p(l) ?? "Verification failed. Please try again."), 1)
+          ])) : (y(), k("div", Te, [
             g("button", {
               type: "button",
               class: "gc-btn-primary",
@@ -629,17 +642,17 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
             }, "Start Verification")
           ]))
         ]),
-        g("div", Te, [
-          p(d) ? (b(), ne(K, {
+        g("div", Ee, [
+          p(d) ? (y(), ne(K, {
             key: 0,
             "ball-start-x": p(d).ball_start_x,
             "track-width": ((M = p(d).canvas) == null ? void 0 : M.width) ?? 400,
             success: p(e) === "success",
             disabled: p(e) === "verifying" || p(e) === "success",
             onDragStart: p(r),
-            onDragMove: y,
+            onDragMove: b,
             onDragEnd: u
-          }, null, 8, ["ball-start-x", "track-width", "success", "disabled", "onDragStart"])) : p(e) === "loading" ? (b(), k("div", Ee)) : p(e) === "failed" ? (b(), k("div", Ie, [
+          }, null, 8, ["ball-start-x", "track-width", "success", "disabled", "onDragStart"])) : p(e) === "loading" ? (y(), k("div", Ie)) : p(e) === "failed" ? (y(), k("div", Xe, [
             g("button", {
               type: "button",
               class: "gc-btn-primary",
@@ -647,20 +660,20 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
             }, "↺ Try again")
           ])) : P("", !0)
         ]),
-        p(o) ? (b(), k("input", {
+        p(o) ? (y(), k("input", {
           key: 0,
           type: "hidden",
           name: i.fieldName,
           value: p(o)
-        }, null, 8, Xe)) : P("", !0)
+        }, null, 8, Ge)) : P("", !0)
       ], 10, be);
     };
   }
-}, Ge = {
+}, Le = {
   class: "goal-captcha__success",
   role: "status",
   "aria-live": "polite"
-}, Le = { class: "goal-captcha__success-text" }, Be = {
+}, Be = { class: "goal-captcha__success-text" }, De = {
   __name: "SuccessAnimation",
   props: {
     message: {
@@ -669,7 +682,7 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
     }
   },
   setup(i) {
-    return (s, n) => (b(), k("div", Ge, [
+    return (s, n) => (y(), k("div", Le, [
       n[0] || (n[0] = g("div", { class: "goal-captcha__success-icon" }, [
         g("svg", {
           viewBox: "0 0 52 52",
@@ -690,18 +703,18 @@ const be = ["data-state"], ke = { class: "gc-modal__header" }, Me = { class: "gc
           })
         ])
       ], -1)),
-      g("p", Le, Y(i.message), 1)
+      g("p", Be, Y(i.message), 1)
     ]));
   }
-}, De = /* @__PURE__ */ L(Be, [["__scopeId", "data-v-3f0157c9"]]), Re = (i, s = {}) => {
+}, Re = /* @__PURE__ */ L(De, [["__scopeId", "data-v-3f0157c9"]]), We = (i, s = {}) => {
   (s.generateUrl || s.verifyUrl) && (window.__GoalCaptchaConfig = {
     generateUrl: s.generateUrl ?? "/_goal_captcha/generate",
     verifyUrl: s.verifyUrl ?? "/_goal_captcha/verify",
     theme: s.theme ?? "football",
     difficulty: s.difficulty ?? "medium"
-  }), i.component("GoalCaptcha", Z), i.component("GoalCanvas", z), i.component("GoalSlider", K), i.component("SuccessAnimation", De);
-}, Ae = { install: Re };
-function $e() {
+  }), i.component("GoalCaptcha", Z), i.component("GoalCanvas", z), i.component("GoalSlider", K), i.component("SuccessAnimation", Re);
+}, $e = { install: We };
+function Ue() {
   typeof document > "u" || document.addEventListener("DOMContentLoaded", () => {
     const { createApp: i } = window.Vue ?? require("vue");
     document.querySelectorAll(".goal-captcha-wrapper").forEach((s) => {
@@ -727,10 +740,10 @@ export {
   z as GoalCanvas,
   Z as GoalCaptcha,
   K as GoalSlider,
-  De as SuccessAnimation,
-  Ae as default,
-  $e as initBladeMount,
-  Re as install,
+  Re as SuccessAnimation,
+  $e as default,
+  Ue as initBladeMount,
+  We as install,
   ye as useGoalCaptcha
 };
 //# sourceMappingURL=goal-captcha.es.js.map

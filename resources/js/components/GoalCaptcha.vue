@@ -43,6 +43,11 @@
           <span class="gc-spinner" aria-hidden="true" />
           <span>Verifying…</span>
         </div>
+        <!-- Failed overlay (auto-retries) -->
+        <div v-if="state === 'failed'" class="gc-modal__verifying gc-modal__verifying--failed" aria-live="assertive">
+          <span class="gc-icon-miss" aria-hidden="true">❌</span>
+          <span>Missed! Retrying…</span>
+        </div>
       </template>
 
       <!-- Error scene -->
@@ -159,7 +164,16 @@ watch(state, (s) => {
     currentBallX.value = captchaData.value?.target_x ?? currentBallX.value
     emit('verified', token.value)
   }
-  if (s === 'failed')  emit('failed', errorMsg.value)
+  if (s === 'failed') {
+    emit('failed', errorMsg.value)
+    // Verify failure (captchaData exists) → auto-regenerate after a short pause
+    if (captchaData.value) {
+      setTimeout(() => {
+        currentBallX.value = null
+        retry()
+      }, 1400)
+    }
+  }
   if (s === 'ready')   emit('loaded', captchaData.value)
 })
 
@@ -279,6 +293,17 @@ onMounted(() => {
   font-weight:     600;
   color:           #374151;
   backdrop-filter: blur(3px);
+}
+.gc-modal__verifying--failed {
+  background: rgba(254,226,226,.82);
+  color:      #b91c1c;
+  animation:  gc-fail-fade 1.4s ease forwards;
+}
+.gc-icon-miss { font-size: 1.2rem; line-height: 1; }
+@keyframes gc-fail-fade {
+  0%   { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
 }
 .gc-spinner {
   width:            20px;

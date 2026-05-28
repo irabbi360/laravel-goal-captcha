@@ -1,92 +1,62 @@
 <template>
+  <!-- ══ MODAL MODE — backdrop + centred card ══════════════════════════════ -->
+  <Teleport v-if="isModal" to="body">
+    <Transition name="gc-backdrop">
+      <div
+        v-if="isOpen"
+        class="gc-backdrop"
+        aria-modal="true"
+        role="dialog"
+        aria-label="Football goal CAPTCHA verification"
+        @click.self="onBackdropClick"
+      >
+        <div class="gc-modal" :class="[`gc-modal--${theme}`, `gc-modal--${difficulty}`]" :data-state="state">
+          <CaptchaCard
+            :state="state"
+            :captcha-data="captchaData"
+            :current-ball-x="currentBallX"
+            :error-msg="errorMsg"
+            :closable="closable"
+            :field-name="fieldName"
+            :token="token"
+            @close="closeModal"
+            @load="load"
+            @retry="retry"
+            @drag-start="onDragStart"
+            @drag-move="handleDragMove"
+            @drag-end="handleDragEnd"
+          />
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- ══ INLINE MODE — renders in-place inside the page / form ════════════ -->
   <div
+    v-else
     class="gc-modal"
     :class="[`gc-modal--${theme}`, `gc-modal--${difficulty}`]"
     :data-state="state"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Football goal CAPTCHA verification"
   >
-    <!-- ── Header ────────────────────────────────────────────────── -->
-    <div class="gc-modal__header">
-      <div class="gc-modal__header-text">
-        <h2 class="gc-modal__title">Confirm you're not a robot</h2>
-        <p class="gc-modal__subtitle">Drag the slider left or right to score a goal</p>
-      </div>
-      <button
-        v-if="closable"
-        type="button"
-        class="gc-modal__close"
-        aria-label="Close"
-        @click="$emit('close')"
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- ── Canvas area ───────────────────────────────────────────── -->
-    <div class="gc-modal__scene">
-      <!-- Loading skeleton -->
-      <div v-if="state === 'loading'" class="gc-modal__skeleton" aria-busy="true" />
-
-      <!-- Active canvas (ready / dragging / verifying / success) -->
-      <template v-else-if="captchaData">
-        <GoalCanvas
-          :captcha-data="captchaData"
-          :ball-x="currentBallX"
-          :show-success="state === 'success'"
-        />
-        <!-- Verifying overlay -->
-        <div v-if="state === 'verifying'" class="gc-modal__verifying" aria-live="polite">
-          <span class="gc-spinner" aria-hidden="true" />
-          <span>Verifying…</span>
-        </div>
-        <!-- Failed overlay (auto-retries) -->
-        <div v-if="state === 'failed'" class="gc-modal__verifying gc-modal__verifying--failed" aria-live="assertive">
-          <span class="gc-icon-miss" aria-hidden="true">❌</span>
-          <span>Missed! Retrying…</span>
-        </div>
-      </template>
-
-      <!-- Error scene -->
-      <div v-else-if="state === 'failed'" class="gc-modal__error-scene" role="alert">
-        <div class="gc-modal__error-icon" aria-hidden="true">⚽</div>
-        <p class="gc-modal__error-msg">{{ errorMsg ?? 'Verification failed. Please try again.' }}</p>
-      </div>
-
-      <!-- Idle -->
-      <div v-else class="gc-modal__idle">
-        <button type="button" class="gc-btn-primary" @click="load">Start Verification</button>
-      </div>
-    </div>
-
-    <!-- ── Slider area ───────────────────────────────────────────── -->
-    <div class="gc-modal__slider-wrap">
-      <GoalSlider
-        v-if="captchaData"
-        :ball-start-x="captchaData.ball_start_x"
-        :track-width="captchaData.canvas?.width ?? 400"
-        :success="state === 'success'"
-        :disabled="state === 'verifying' || state === 'success'"
-        @drag-start="onDragStart"
-        @drag-move="handleDragMove"
-        @drag-end="handleDragEnd"
-      />
-      <div v-else-if="state === 'loading'" class="gc-modal__slider-skeleton" />
-      <div v-else-if="state === 'failed'" class="gc-modal__error-actions">
-        <button type="button" class="gc-btn-primary" @click="retry">↺ Try again</button>
-      </div>
-    </div>
-
-    <!-- One-time token injected into the parent form -->
-    <input v-if="token" type="hidden" :name="fieldName" :value="token" />
+    <CaptchaCard
+      :state="state"
+      :captcha-data="captchaData"
+      :current-ball-x="currentBallX"
+      :error-msg="errorMsg"
+      :closable="false"
+      :field-name="fieldName"
+      :token="token"
+      @load="load"
+      @retry="retry"
+      @drag-start="onDragStart"
+      @drag-move="handleDragMove"
+      @drag-end="handleDragEnd"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, defineComponent, h } from 'vue'
 import GoalCanvas from './GoalCanvas.vue'
 import GoalSlider from './GoalSlider.vue'
 import { useGoalCaptcha } from '../composables/useGoalCaptcha.js'
@@ -94,6 +64,21 @@ import { useGoalCaptcha } from '../composables/useGoalCaptcha.js'
 // ─── Props ────────────────────────────────────────────────────────────────
 
 const props = defineProps({
+  /** 'inline' renders inside the page; 'modal' opens as an overlay. */
+  mode: {
+    type:    String,
+    default: 'inline',
+    validator: (v) => ['inline', 'modal'].includes(v),
+  },
+  /**
+   * Modal mode only: CSS selector or HTMLFormElement of the form to intercept.
+   * When the form's submit event fires, the modal opens instead.
+   * On successful verify, the form is submitted automatically.
+   */
+  form: {
+    type:    String,
+    default: null,
+  },
   generateUrl: {
     type:    String,
     default: () => window.__GoalCaptchaConfig?.generateUrl ?? '/_goal_captcha/generate',
@@ -126,7 +111,31 @@ const props = defineProps({
 
 // ─── Emits ────────────────────────────────────────────────────────────────
 
-const emit = defineEmits(['verified', 'failed', 'loaded', 'close'])
+const emit = defineEmits(['verified', 'failed', 'loaded', 'close', 'open'])
+
+// ─── Mode helpers ─────────────────────────────────────────────────────────
+
+const isModal = computed(() => props.mode === 'modal')
+const isOpen  = ref(false)
+
+let interceptedForm = null   // the <form> element we're intercepting (modal mode)
+
+function openModal() {
+  isOpen.value = true
+  emit('open')
+  // Load fresh challenge each time the modal opens
+  if (!captchaData.value || state.value === 'failed') retry()
+  else if (state.value === 'idle') load()
+}
+
+function closeModal() {
+  isOpen.value = false
+  emit('close')
+}
+
+function onBackdropClick() {
+  if (props.closable) closeModal()
+}
 
 // ─── Composable ───────────────────────────────────────────────────────────
 
@@ -148,7 +157,6 @@ const currentBallX = ref(null)
 
 function handleDragMove(ballPos, rawPos) {
   currentBallX.value = ballPos
-  // Record raw handle position (not scaled canvas coord) for human-motion analysis
   onDragMove(rawPos ?? ballPos)
 }
 
@@ -161,13 +169,26 @@ function handleDragEnd(x) {
 
 watch(state, (s) => {
   if (s === 'success') {
-    // Snap ball to exact target on success
     currentBallX.value = captchaData.value?.target_x ?? currentBallX.value
     emit('verified', token.value)
+
+    if (isModal.value && interceptedForm) {
+      // Inject the token into the form then submit it natively
+      closeModal()
+      let hidden = interceptedForm.querySelector(`input[name="${props.fieldName}"]`)
+      if (!hidden) {
+        hidden = document.createElement('input')
+        hidden.type = 'hidden'
+        hidden.name = props.fieldName
+        interceptedForm.appendChild(hidden)
+      }
+      hidden.value = token.value
+      // Small delay so the success state is visible briefly
+      setTimeout(() => interceptedForm.submit(), 600)
+    }
   }
   if (s === 'failed') {
     emit('failed', errorMsg.value)
-    // Verify failure (captchaData exists) → auto-regenerate after a short pause
     if (captchaData.value) {
       setTimeout(() => {
         currentBallX.value = null
@@ -175,11 +196,128 @@ watch(state, (s) => {
       }, 1400)
     }
   }
-  if (s === 'ready')   emit('loaded', captchaData.value)
+  if (s === 'ready') emit('loaded', captchaData.value)
 })
 
 onMounted(() => {
-  if (props.autoLoad) load()
+  if (isModal.value) {
+    // Intercept the target form's submit
+    if (props.form) {
+      interceptedForm =
+        typeof props.form === 'string'
+          ? document.querySelector(props.form)
+          : props.form
+
+      if (interceptedForm) {
+        interceptedForm.addEventListener('submit', (e) => {
+          if (interceptedForm.dataset.gcVerified === '1') return   // allow native re-submit
+          e.preventDefault()
+          openModal()
+        })
+      }
+    }
+    // Pre-load so the challenge is ready when the modal opens
+    if (props.autoLoad) load()
+  } else {
+    if (props.autoLoad) load()
+  }
+})
+
+// ─── CaptchaCard — internal sub-component ─────────────────────────────────
+// Extracted so both modal and inline modes share the same inner markup.
+
+const CaptchaCard = defineComponent({
+  name: 'CaptchaCard',
+  props: {
+    state:        String,
+    captchaData:  Object,
+    currentBallX: Number,
+    errorMsg:     String,
+    closable:     Boolean,
+    fieldName:    String,
+    token:        String,
+  },
+  emits: ['close', 'load', 'retry', 'drag-start', 'drag-move', 'drag-end'],
+  setup(p, { emit: ce }) {
+    return () => [
+      // ── Header
+      h('div', { class: 'gc-modal__header' }, [
+        h('div', { class: 'gc-modal__header-text' }, [
+          h('h2', { class: 'gc-modal__title' }, "Confirm you're not a robot"),
+          h('p',  { class: 'gc-modal__subtitle' }, 'Drag the slider to score a goal'),
+        ]),
+        p.closable
+          ? h('button', {
+              type: 'button', class: 'gc-modal__close', 'aria-label': 'Close',
+              onClick: () => ce('close'),
+            }, [
+              h('svg', { viewBox: '0 0 24 24', width: 18, height: 18, fill: 'none', stroke: 'currentColor', 'stroke-width': '2.5', 'stroke-linecap': 'round' }, [
+                h('line', { x1: 18, y1: 6,  x2: 6,  y2: 18 }),
+                h('line', { x1: 6,  y1: 6,  x2: 18, y2: 18 }),
+              ]),
+            ])
+          : null,
+      ]),
+
+      // ── Scene
+      h('div', { class: 'gc-modal__scene' }, [
+        p.state === 'loading'
+          ? h('div', { class: 'gc-modal__skeleton', 'aria-busy': 'true' })
+          : p.captchaData
+            ? [
+                h(GoalCanvas, {
+                  captchaData:  p.captchaData,
+                  ballX:        p.currentBallX,
+                  showSuccess:  p.state === 'success',
+                }),
+                p.state === 'verifying'
+                  ? h('div', { class: 'gc-modal__verifying', 'aria-live': 'polite' }, [
+                      h('span', { class: 'gc-spinner', 'aria-hidden': 'true' }),
+                      h('span', {}, 'Verifying…'),
+                    ])
+                  : null,
+                p.state === 'failed'
+                  ? h('div', { class: 'gc-modal__verifying gc-modal__verifying--failed', 'aria-live': 'assertive' }, [
+                      h('span', { class: 'gc-icon-miss', 'aria-hidden': 'true' }, '❌'),
+                      h('span', {}, 'Missed! Retrying…'),
+                    ])
+                  : null,
+              ]
+            : p.state === 'failed'
+              ? h('div', { class: 'gc-modal__error-scene', role: 'alert' }, [
+                  h('div', { class: 'gc-modal__error-icon', 'aria-hidden': 'true' }, '⚽'),
+                  h('p',   { class: 'gc-modal__error-msg' }, p.errorMsg ?? 'Verification failed. Please try again.'),
+                ])
+              : h('div', { class: 'gc-modal__idle' }, [
+                  h('button', { type: 'button', class: 'gc-btn-primary', onClick: () => ce('load') }, 'Start Verification'),
+                ]),
+      ]),
+
+      // ── Slider
+      h('div', { class: 'gc-modal__slider-wrap' }, [
+        p.captchaData
+          ? h(GoalSlider, {
+              ballStartX:   p.captchaData.ball_start_x,
+              trackWidth:   p.captchaData.canvas?.width ?? 400,
+              success:      p.state === 'success',
+              disabled:     p.state === 'verifying' || p.state === 'success',
+              onDragStart:  () => ce('drag-start'),
+              onDragMove:   (a, b) => ce('drag-move', a, b),
+              onDragEnd:    (x) => ce('drag-end', x),
+            })
+          : p.state === 'loading'
+            ? h('div', { class: 'gc-modal__slider-skeleton' })
+            : h('div', { class: 'gc-modal__error-actions' }, [
+                h('button', { type: 'button', class: 'gc-btn-primary', onClick: () => ce('retry') }, '↺ Try again'),
+              ]),
+      ]),
+
+      // ── Hidden token (inline mode — appended to surrounding form)
+      p.token
+        ? h('input', { type: 'hidden', name: p.fieldName, value: p.token })
+        : null,
+    ]
+  },
 })
 </script>
 
@@ -360,4 +498,25 @@ onMounted(() => {
 
 /* keep old class names working for any external references */
 .goal-captcha { display: contents; }
+
+/* ── Backdrop (modal mode) ────────────────────────────────────────────────── */
+.gc-backdrop {
+  position:        fixed;
+  inset:           0;
+  z-index:         9999;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         16px;
+  background:      rgba(0, 0, 0, .55);
+  backdrop-filter: blur(3px);
+}
+.gc-backdrop-enter-active { transition: opacity .25s ease; }
+.gc-backdrop-leave-active { transition: opacity .2s ease; }
+.gc-backdrop-enter-from,
+.gc-backdrop-leave-to     { opacity: 0; }
+.gc-backdrop-enter-active .gc-modal { animation: gc-modal-in .28s cubic-bezier(.175,.885,.32,1.275) both; }
+.gc-backdrop-leave-active .gc-modal { animation: gc-modal-out .2s ease forwards; }
+@keyframes gc-modal-in  { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes gc-modal-out { to   { transform: scale(.94); opacity: 0; } }
 </style>

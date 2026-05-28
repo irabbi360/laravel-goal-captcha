@@ -1,11 +1,11 @@
-import { ref as x, onMounted as X, onBeforeUnmount as I, watch as A, openBlock as v, createElementBlock as _, createElementVNode as l, unref as u, createVNode as U, Transition as F, withCtx as V, Fragment as $, renderList as q, createCommentVNode as b, computed as C, normalizeClass as P, normalizeStyle as B, createStaticVNode as H, withModifiers as T, readonly as S, toDisplayString as N, createBlock as j } from "vue";
-const E = /* @__PURE__ */ new Map();
+import { ref as x, onMounted as G, onBeforeUnmount as I, watch as $, openBlock as m, createElementBlock as _, createElementVNode as l, unref as h, createVNode as A, Transition as F, withCtx as V, Fragment as W, renderList as q, createCommentVNode as M, computed as C, normalizeClass as L, normalizeStyle as D, createStaticVNode as H, withModifiers as B, readonly as E, toDisplayString as U, createBlock as j } from "vue";
+const P = /* @__PURE__ */ new Map();
 async function z(r) {
-  return E.has(r) ? E.get(r) : new Promise((o, e) => {
-    const t = new Image();
-    t.crossOrigin = "anonymous", t.onload = () => {
-      E.set(r, t), o(t);
-    }, t.onerror = () => e(new Error(`Failed to load image: ${r}`)), t.src = r;
+  return P.has(r) ? P.get(r) : new Promise((o, t) => {
+    const e = new Image();
+    e.crossOrigin = "anonymous", e.onload = () => {
+      P.set(r, e), o(e);
+    }, e.onerror = () => t(new Error(`Failed to load image: ${r}`)), e.src = r;
   });
 }
 class K {
@@ -13,21 +13,21 @@ class K {
    * @param {HTMLCanvasElement} canvas
    * @param {object} captchaData  - data from the generate endpoint
    */
-  constructor(o, e) {
-    var t;
-    this.canvas = o, this.ctx = o.getContext("2d"), this.data = e, this.ballX = e.ball_start_x, this.keeperOffsetX = ((t = e.scene) == null ? void 0 : t.keeper_offset_x) ?? 0, this.images = {}, this.ready = !1;
+  constructor(o, t) {
+    var e;
+    this.canvas = o, this.ctx = o.getContext("2d"), this.data = t, this.ballX = t.ball_start_x, this.keeperOffsetX = ((e = t.scene) == null ? void 0 : e.keeper_offset_x) ?? 0, this.images = {}, this.ready = !1;
   }
   async preload() {
-    const o = this.data.scene.assets ?? {}, e = await Promise.allSettled(
-      Object.entries(o).map(async ([t, s]) => {
-        const a = await z(s);
-        return [t, a];
+    const o = this.data.scene.assets ?? {}, t = await Promise.allSettled(
+      Object.entries(o).map(async ([e, n]) => {
+        const a = await z(n);
+        return [e, a];
       })
     );
-    for (const t of e)
-      if (t.status === "fulfilled") {
-        const [s, a] = t.value;
-        this.images[s] = a;
+    for (const e of t)
+      if (e.status === "fulfilled") {
+        const [n, a] = e.value;
+        this.images[n] = a;
       }
     this.ready = !0, this.draw();
   }
@@ -36,93 +36,93 @@ class K {
     this.ballX = Math.max(0, Math.min(o, this.canvas.width)), this.draw();
   }
   draw() {
-    var n;
-    const { ctx: o, canvas: e, data: t } = this, { width: s, height: a } = e;
-    o.clearRect(0, 0, s, a), this._drawBackground(s, a), this._drawGoalPost(s, a), this._drawDecoys(t.scene.decoys ?? []), this._drawTargetRing(t.target_x, a), this._drawGoalkeeper(t.scene, s, a), this._drawBall(a, ((n = t.scene) == null ? void 0 : n.ball_radius) ?? 18);
+    var s;
+    const { ctx: o, canvas: t, data: e } = this, { width: n, height: a } = t;
+    o.clearRect(0, 0, n, a), this._drawBackground(n, a), this._drawGoalPost(n, a), this._drawDecoys(e.scene.decoys ?? []), this._drawTargetRing(e.target_x, a), this._drawGoalkeeper(e.scene, n, a), this._drawBall(a, ((s = e.scene) == null ? void 0 : s.ball_radius) ?? 18);
   }
   // ─── Layer renderers ─────────────────────────────────────────────────────
-  _drawBackground(o, e) {
-    const t = this.images.stadium;
-    if (t)
-      this.ctx.drawImage(t, 0, 0, o, e);
+  _drawBackground(o, t) {
+    const e = this.images.stadium;
+    if (e)
+      this.ctx.drawImage(e, 0, 0, o, t);
     else {
-      const s = this.ctx.createLinearGradient(0, 0, 0, e);
-      s.addColorStop(0, "#1a472a"), s.addColorStop(1, "#2d6a4f"), this.ctx.fillStyle = s, this.ctx.fillRect(0, 0, o, e), this.ctx.strokeStyle = "rgba(255,255,255,0.08)", this.ctx.lineWidth = 1;
+      const n = this.ctx.createLinearGradient(0, 0, 0, t);
+      n.addColorStop(0, "#1a472a"), n.addColorStop(1, "#2d6a4f"), this.ctx.fillStyle = n, this.ctx.fillRect(0, 0, o, t), this.ctx.strokeStyle = "rgba(255,255,255,0.08)", this.ctx.lineWidth = 1;
       for (let a = 0; a <= o; a += 30)
-        this.ctx.beginPath(), this.ctx.moveTo(a, 0), this.ctx.lineTo(a, e), this.ctx.stroke();
+        this.ctx.beginPath(), this.ctx.moveTo(a, 0), this.ctx.lineTo(a, t), this.ctx.stroke();
     }
   }
-  _drawGoalPost(o, e) {
-    const t = this.images.goal_post, s = Math.round(o * 0.35 * (this.data.scene.goal_width_scale ?? 1)), a = Math.round(e * 0.6), n = Math.round((o - s) / 2), i = Math.round(e * 0.05);
-    if (t) {
-      this.ctx.drawImage(t, n, i, s, a);
+  _drawGoalPost(o, t) {
+    const e = this.images.goal_post, n = Math.round(o * 0.35 * (this.data.scene.goal_width_scale ?? 1)), a = Math.round(t * 0.6), s = Math.round((o - n) / 2), i = Math.round(t * 0.05);
+    if (e) {
+      this.ctx.drawImage(e, s, i, n, a);
       return;
     }
-    this.ctx.strokeStyle = "#ffffff", this.ctx.lineWidth = 4, this.ctx.strokeRect(n, i, s, a), this.ctx.strokeStyle = "rgba(255,255,255,0.2)", this.ctx.lineWidth = 1;
-    for (let c = n; c <= n + s; c += 15)
-      this.ctx.beginPath(), this.ctx.moveTo(c, i), this.ctx.lineTo(c, i + a), this.ctx.stroke();
-    for (let c = i; c <= i + a; c += 12)
-      this.ctx.beginPath(), this.ctx.moveTo(n, c), this.ctx.lineTo(n + s, c), this.ctx.stroke();
+    this.ctx.strokeStyle = "#ffffff", this.ctx.lineWidth = 4, this.ctx.strokeRect(s, i, n, a), this.ctx.strokeStyle = "rgba(255,255,255,0.2)", this.ctx.lineWidth = 1;
+    for (let d = s; d <= s + n; d += 15)
+      this.ctx.beginPath(), this.ctx.moveTo(d, i), this.ctx.lineTo(d, i + a), this.ctx.stroke();
+    for (let d = i; d <= i + a; d += 12)
+      this.ctx.beginPath(), this.ctx.moveTo(s, d), this.ctx.lineTo(s + n, d), this.ctx.stroke();
   }
-  _drawGoalkeeper(o, e, t) {
-    const s = this.images.goalkeeper, a = Math.round(t * 0.35), n = Math.round(t * 0.72), i = Math.round(e / 2 - a / 2 + this.keeperOffsetX), c = Math.round(t * 0.18);
-    if (s) {
-      this.ctx.drawImage(s, i, c, a, n);
+  _drawGoalkeeper(o, t, e) {
+    const n = this.images.goalkeeper, a = Math.round(e * 0.35), s = Math.round(e * 0.72), i = Math.round(t / 2 - a / 2 + this.keeperOffsetX), d = Math.round(e * 0.18);
+    if (n) {
+      this.ctx.drawImage(n, i, d, a, s);
       return;
     }
-    this.ctx.fillStyle = "#e74c3c", this.ctx.fillRect(i + Math.round(a * 0.3), c + Math.round(n * 0.15), Math.round(a * 0.4), Math.round(n * 0.55)), this.ctx.beginPath(), this.ctx.arc(i + Math.round(a / 2), c + Math.round(n * 0.1), Math.round(a * 0.18), 0, Math.PI * 2), this.ctx.fill();
+    this.ctx.fillStyle = "#e74c3c", this.ctx.fillRect(i + Math.round(a * 0.3), d + Math.round(s * 0.15), Math.round(a * 0.4), Math.round(s * 0.55)), this.ctx.beginPath(), this.ctx.arc(i + Math.round(a / 2), d + Math.round(s * 0.1), Math.round(a * 0.18), 0, Math.PI * 2), this.ctx.fill();
   }
   /** The target ring — metallic gray hoop inside the goal area. */
-  _drawTargetRing(o, e) {
-    const t = o, s = Math.round(e * 0.38), a = Math.round(e * 0.14), n = this.ctx;
-    n.save(), n.shadowColor = "rgba(0,0,0,.55)", n.shadowBlur = 14, n.strokeStyle = "rgba(30,30,30,.6)", n.lineWidth = a * 0.58 + 2, n.beginPath(), n.arc(t, s, a, 0, Math.PI * 2), n.stroke(), n.shadowBlur = 0;
-    const i = n.createLinearGradient(t - a, s - a, t + a, s + a);
-    i.addColorStop(0, "#d4d4d4"), i.addColorStop(0.25, "#a0a0a0"), i.addColorStop(0.5, "#707070"), i.addColorStop(0.75, "#a8a8a8"), i.addColorStop(1, "#cecece"), n.strokeStyle = i, n.lineWidth = a * 0.55, n.beginPath(), n.arc(t, s, a, 0, Math.PI * 2), n.stroke(), n.strokeStyle = "rgba(255,255,255,.45)", n.lineWidth = 3, n.beginPath(), n.arc(t - a * 0.15, s - a * 0.15, a - a * 0.3, Math.PI * 1.05, Math.PI * 1.7), n.stroke(), n.strokeStyle = "rgba(0,0,0,.25)", n.lineWidth = 2, n.beginPath(), n.arc(t, s, a - a * 0.28, 0, Math.PI * 2), n.stroke(), n.restore();
+  _drawTargetRing(o, t) {
+    const e = o, n = Math.round(t * 0.38), a = Math.round(t * 0.14), s = this.ctx;
+    s.save(), s.shadowColor = "rgba(0,0,0,.55)", s.shadowBlur = 14, s.strokeStyle = "rgba(30,30,30,.6)", s.lineWidth = a * 0.58 + 2, s.beginPath(), s.arc(e, n, a, 0, Math.PI * 2), s.stroke(), s.shadowBlur = 0;
+    const i = s.createLinearGradient(e - a, n - a, e + a, n + a);
+    i.addColorStop(0, "#d4d4d4"), i.addColorStop(0.25, "#a0a0a0"), i.addColorStop(0.5, "#707070"), i.addColorStop(0.75, "#a8a8a8"), i.addColorStop(1, "#cecece"), s.strokeStyle = i, s.lineWidth = a * 0.55, s.beginPath(), s.arc(e, n, a, 0, Math.PI * 2), s.stroke(), s.strokeStyle = "rgba(255,255,255,.45)", s.lineWidth = 3, s.beginPath(), s.arc(e - a * 0.15, n - a * 0.15, a - a * 0.3, Math.PI * 1.05, Math.PI * 1.7), s.stroke(), s.strokeStyle = "rgba(0,0,0,.25)", s.lineWidth = 2, s.beginPath(), s.arc(e, n, a - a * 0.28, 0, Math.PI * 2), s.stroke(), s.restore();
   }
   /** Decoy rings — semi-transparent, misleading. */
   _drawDecoys(o) {
-    for (const e of o) {
-      const t = Math.round(this.canvas.height * 0.38);
-      this.ctx.save(), this.ctx.strokeStyle = `rgba(180,180,180,${e.opacity})`, this.ctx.lineWidth = 4, this.ctx.beginPath(), this.ctx.arc(e.x, t, Math.round(this.canvas.height * 0.12), 0, Math.PI * 2), this.ctx.stroke(), this.ctx.restore();
+    for (const t of o) {
+      const e = Math.round(this.canvas.height * 0.38);
+      this.ctx.save(), this.ctx.strokeStyle = `rgba(180,180,180,${t.opacity})`, this.ctx.lineWidth = 4, this.ctx.beginPath(), this.ctx.arc(t.x, e, Math.round(this.canvas.height * 0.12), 0, Math.PI * 2), this.ctx.stroke(), this.ctx.restore();
     }
   }
-  _drawBall(o, e) {
-    const t = this.images.ball, s = this.ballX, a = Math.round(o * 0.76);
-    if (t) {
-      this.ctx.drawImage(t, s - e, a - e, e * 2, e * 2);
+  _drawBall(o, t) {
+    const e = this.images.ball, n = this.ballX, a = Math.round(o * 0.76);
+    if (e) {
+      this.ctx.drawImage(e, n - t, a - t, t * 2, t * 2);
       return;
     }
-    this.ctx.save(), this.ctx.fillStyle = "#f5f5f5", this.ctx.strokeStyle = "#333", this.ctx.lineWidth = 2, this.ctx.shadowColor = "rgba(0,0,0,0.4)", this.ctx.shadowBlur = 6, this.ctx.beginPath(), this.ctx.arc(s, a, e, 0, Math.PI * 2), this.ctx.fill(), this.ctx.stroke(), this.ctx.fillStyle = "#222";
-    const n = [
-      [s, a],
-      [s - e * 0.4, a - e * 0.5],
-      [s + e * 0.4, a - e * 0.5],
-      [s - e * 0.5, a + e * 0.3],
-      [s + e * 0.5, a + e * 0.3]
+    this.ctx.save(), this.ctx.fillStyle = "#f5f5f5", this.ctx.strokeStyle = "#333", this.ctx.lineWidth = 2, this.ctx.shadowColor = "rgba(0,0,0,0.4)", this.ctx.shadowBlur = 6, this.ctx.beginPath(), this.ctx.arc(n, a, t, 0, Math.PI * 2), this.ctx.fill(), this.ctx.stroke(), this.ctx.fillStyle = "#222";
+    const s = [
+      [n, a],
+      [n - t * 0.4, a - t * 0.5],
+      [n + t * 0.4, a - t * 0.5],
+      [n - t * 0.5, a + t * 0.3],
+      [n + t * 0.5, a + t * 0.3]
     ];
-    for (const [i, c] of n)
-      this.ctx.beginPath(), this.ctx.arc(i, c, e * 0.2, 0, Math.PI * 2), this.ctx.fill();
+    for (const [i, d] of s)
+      this.ctx.beginPath(), this.ctx.arc(i, d, t * 0.2, 0, Math.PI * 2), this.ctx.fill();
     this.ctx.restore();
   }
   destroy() {
   }
 }
-function Z(r, o, e, t) {
-  let s = null, a = !0;
-  function n(i) {
+function Z(r, o, t, e) {
+  let n = null, a = !0;
+  function s(i) {
     if (!a) return;
-    const c = i % e / e * Math.PI * 2, k = r + (o - r) * (0.5 + 0.5 * Math.sin(c));
-    t(k), s = requestAnimationFrame(n);
+    const d = i % t / t * Math.PI * 2, p = r + (o - r) * (0.5 + 0.5 * Math.sin(d));
+    e(p), n = requestAnimationFrame(s);
   }
-  return s = requestAnimationFrame(n), () => {
-    a = !1, s !== null && cancelAnimationFrame(s);
+  return n = requestAnimationFrame(s), () => {
+    a = !1, n !== null && cancelAnimationFrame(n);
   };
 }
-const L = (r, o) => {
-  const e = r.__vccOpts || r;
-  for (const [t, s] of o)
-    e[t] = s;
-  return e;
+const X = (r, o) => {
+  const t = r.__vccOpts || r;
+  for (const [e, n] of o)
+    t[e] = n;
+  return t;
 }, J = { class: "gc-canvas-wrap" }, Y = ["width", "height"], Q = {
   key: 0,
   class: "gc-canvas__success-overlay",
@@ -147,50 +147,50 @@ const L = (r, o) => {
     }
   },
   setup(r) {
-    var i, c, k, w;
-    const o = r, e = x(null);
-    let t = null, s = null;
-    const a = ((c = (i = o.captchaData) == null ? void 0 : i.canvas) == null ? void 0 : c.width) ?? 400, n = ((w = (k = o.captchaData) == null ? void 0 : k.canvas) == null ? void 0 : w.height) ?? 220;
-    return X(async () => {
-      var d;
-      t = new K(e.value, o.captchaData), await t.preload();
-      const g = ((d = o.captchaData.scene) == null ? void 0 : d.keeper_offset_x) ?? 0;
-      s = Z(
-        g - 8,
-        g + 8,
+    var i, d, p, k;
+    const o = r, t = x(null);
+    let e = null, n = null;
+    const a = ((d = (i = o.captchaData) == null ? void 0 : i.canvas) == null ? void 0 : d.width) ?? 400, s = ((k = (p = o.captchaData) == null ? void 0 : p.canvas) == null ? void 0 : k.height) ?? 220;
+    return G(async () => {
+      var u;
+      e = new K(t.value, o.captchaData), await e.preload();
+      const y = ((u = o.captchaData.scene) == null ? void 0 : u.keeper_offset_x) ?? 0;
+      n = Z(
+        y - 8,
+        y + 8,
         2400,
-        (p) => {
-          t && (t.keeperOffsetX = p, t.draw());
+        (v) => {
+          e && (e.keeperOffsetX = v, e.draw());
         }
       );
     }), I(() => {
-      s == null || s(), t == null || t.destroy();
-    }), A(
+      n == null || n(), e == null || e.destroy();
+    }), $(
       () => o.ballX,
-      (g) => {
-        t && g !== null && t.setBallX(g);
+      (y) => {
+        e && y !== null && e.setBallX(y);
       }
-    ), (g, d) => (v(), _("div", J, [
+    ), (y, u) => (m(), _("div", J, [
       l("canvas", {
         ref_key: "canvasEl",
-        ref: e,
-        width: u(a),
-        height: u(n),
+        ref: t,
+        width: h(a),
+        height: h(s),
         class: "gc-canvas",
         "aria-label": "Football goal CAPTCHA scene",
         role: "img"
       }, null, 8, Y),
-      U(F, { name: "gc-success" }, {
+      A(F, { name: "gc-success" }, {
         default: V(() => [
-          r.showSuccess ? (v(), _("div", Q, [
+          r.showSuccess ? (m(), _("div", Q, [
             l("div", ee, [
-              (v(), _($, null, q(24, (p) => l("span", {
-                key: p,
+              (m(), _(W, null, q(24, (v) => l("span", {
+                key: v,
                 class: "gc-confetti__piece",
-                "data-i": p
+                "data-i": v
               }, null, 8, te)), 64))
             ]),
-            d[0] || (d[0] = l("div", { class: "gc-success-badge" }, [
+            u[0] || (u[0] = l("div", { class: "gc-success-badge" }, [
               l("div", { class: "gc-success-badge__ball" }, "⚽"),
               l("div", { class: "gc-success-badge__banner" }, [
                 l("svg", {
@@ -216,13 +216,13 @@ const L = (r, o) => {
                 ])
               ])
             ], -1))
-          ])) : b("", !0)
+          ])) : M("", !0)
         ]),
         _: 1
       })
     ]));
   }
-}, W = /* @__PURE__ */ L(ae, [["__scopeId", "data-v-7d16f725"]]), se = {
+}, N = /* @__PURE__ */ X(ae, [["__scopeId", "data-v-7d16f725"]]), se = {
   key: 0,
   class: "gc-slider gc-slider--success",
   "aria-label": "Verification successful"
@@ -231,36 +231,54 @@ const L = (r, o) => {
   props: {
     ballStartX: { type: Number, default: 20 },
     trackWidth: { type: Number, default: 400 },
-    handleSize: { type: Number, default: 52 },
+    handleSize: { type: Number, default: 72 },
+    // matching the 72px pill width style
     success: { type: Boolean, default: !1 },
     disabled: { type: Boolean, default: !1 }
   },
   emits: ["drag-start", "drag-move", "drag-end"],
   setup(r, { emit: o }) {
-    const e = o, t = r, s = x(null), a = x(t.ballStartX), n = x(!1), i = C(() => t.handleSize / 2), c = C(
-      () => Math.max(0, Math.min(a.value - i.value, t.trackWidth - t.handleSize))
-    ), k = C(
-      () => Math.round(a.value / t.trackWidth * 100)
-    );
-    function w(y) {
-      t.disabled || (n.value = !0, e("drag-start"), window.addEventListener("mousemove", g, { passive: !0 }), window.addEventListener("touchmove", g, { passive: !0 }), window.addEventListener("mouseup", d), window.addEventListener("touchend", d));
+    const t = o, e = r, n = x(null), a = x(e.trackWidth / 2), s = x(!1), i = C(() => e.handleSize / 2), d = C(
+      () => Math.max(0, Math.min(a.value - i.value, e.trackWidth - e.handleSize))
+    ), p = C(() => {
+      const f = e.trackWidth / 2, c = a.value - f, g = f - e.handleSize / 2;
+      if (g <= 0) return e.ballStartX;
+      if (c < 0) {
+        const w = e.ballStartX / g;
+        return Math.max(0, e.ballStartX + c * w);
+      } else {
+        const w = (e.trackWidth - e.ballStartX) / g;
+        return Math.min(e.trackWidth, e.ballStartX + c * w);
+      }
+    }), k = C(() => {
+      const f = e.trackWidth / 2, c = a.value;
+      return c < f ? {
+        left: `${c}px`,
+        width: `${f - c}px`
+      } : {
+        left: `${f}px`,
+        width: `${c - f}px`
+      };
+    });
+    function y(f) {
+      e.disabled || (s.value = !0, t("drag-start"), window.addEventListener("mousemove", u, { passive: !0 }), window.addEventListener("touchmove", u, { passive: !0 }), window.addEventListener("mouseup", v), window.addEventListener("touchend", v));
     }
-    function g(y) {
-      if (!n.value) return;
-      const m = y.touches ? y.touches[0].clientX : y.clientX, f = s.value.getBoundingClientRect(), h = Math.max(0, Math.min(m - f.left, t.trackWidth));
-      a.value = h, e("drag-move", h);
+    function u(f) {
+      if (!s.value) return;
+      const c = f.touches ? f.touches[0].clientX : f.clientX, g = n.value.getBoundingClientRect(), w = Math.max(i.value, Math.min(c - g.left, e.trackWidth - i.value));
+      a.value = w, t("drag-move", p.value);
     }
-    function d() {
-      n.value && (n.value = !1, window.removeEventListener("mousemove", g), window.removeEventListener("touchmove", g), window.removeEventListener("mouseup", d), window.removeEventListener("touchend", d), e("drag-end", a.value));
+    function v() {
+      s.value && (s.value = !1, window.removeEventListener("mousemove", u), window.removeEventListener("touchmove", u), window.removeEventListener("mouseup", v), window.removeEventListener("touchend", v), t("drag-end", p.value));
     }
-    function p(y) {
-      if (t.disabled) return;
-      const m = 5;
-      y.key === "ArrowRight" ? (n.value || (n.value = !0, e("drag-start")), a.value = Math.min(a.value + m, t.trackWidth), e("drag-move", a.value)) : y.key === "ArrowLeft" ? (a.value = Math.max(a.value - m, 0), e("drag-move", a.value)) : (y.key === "Enter" || y.key === " ") && n.value && d();
+    function b(f) {
+      if (e.disabled) return;
+      const c = 5;
+      f.key === "ArrowRight" ? (s.value || (s.value = !0, t("drag-start")), a.value = Math.min(a.value + c, e.trackWidth - i.value), t("drag-move", p.value)) : f.key === "ArrowLeft" ? (s.value || (s.value = !0, t("drag-start")), a.value = Math.max(a.value - c, i.value), t("drag-move", p.value)) : (f.key === "Enter" || f.key === " ") && s.value && v();
     }
     return I(() => {
-      window.removeEventListener("mousemove", g), window.removeEventListener("touchmove", g), window.removeEventListener("mouseup", d), window.removeEventListener("touchend", d);
-    }), (y, m) => r.success ? (v(), _("div", se, [...m[0] || (m[0] = [
+      window.removeEventListener("mousemove", u), window.removeEventListener("touchmove", u), window.removeEventListener("mouseup", v), window.removeEventListener("touchend", v);
+    }), (f, c) => r.success ? (m(), _("div", se, [...c[0] || (c[0] = [
       l("div", { class: "gc-slider__success-check" }, [
         l("svg", {
           viewBox: "0 0 44 44",
@@ -282,31 +300,31 @@ const L = (r, o) => {
           })
         ])
       ], -1)
-    ])])) : (v(), _("div", {
+    ])])) : (m(), _("div", {
       key: 1,
-      class: P(["gc-slider", { "gc-slider--disabled": r.disabled, "gc-slider--dragging": n.value }]),
+      class: L(["gc-slider", { "gc-slider--disabled": r.disabled, "gc-slider--dragging": s.value }]),
       ref_key: "trackEl",
-      ref: s,
+      ref: n,
       role: "slider",
       "aria-valuenow": Math.round(a.value),
       "aria-valuemin": 0,
       "aria-valuemax": r.trackWidth,
       "aria-label": "Drag the ball to score a goal",
       tabindex: r.disabled ? -1 : 0,
-      onKeydown: p
+      onKeydown: b
     }, [
       l("div", {
         class: "gc-slider__fill",
-        style: B({ width: k.value + "%" })
+        style: D(k.value)
       }, null, 4),
-      m[2] || (m[2] = H('<div class="gc-slider__chevrons gc-slider__chevrons--left" aria-hidden="true" data-v-41519849><span class="gc-slider__chev" data-v-41519849>❮</span><span class="gc-slider__chev" data-v-41519849>❮</span><span class="gc-slider__chev" data-v-41519849>❮</span></div><div class="gc-slider__chevrons gc-slider__chevrons--right" aria-hidden="true" data-v-41519849><span class="gc-slider__chev" data-v-41519849>❯</span><span class="gc-slider__chev" data-v-41519849>❯</span><span class="gc-slider__chev" data-v-41519849>❯</span></div>', 2)),
+      c[2] || (c[2] = H('<div class="gc-slider__chevrons gc-slider__chevrons--left" aria-hidden="true" data-v-b3854d8c><span class="gc-slider__chev" data-v-b3854d8c>❮</span><span class="gc-slider__chev" data-v-b3854d8c>❮</span><span class="gc-slider__chev" data-v-b3854d8c>❮</span></div><div class="gc-slider__chevrons gc-slider__chevrons--right" aria-hidden="true" data-v-b3854d8c><span class="gc-slider__chev" data-v-b3854d8c>❯</span><span class="gc-slider__chev" data-v-b3854d8c>❯</span><span class="gc-slider__chev" data-v-b3854d8c>❯</span></div>', 2)),
       l("div", {
-        class: P(["gc-slider__handle", { "is-dragging": n.value }]),
-        style: B({ left: c.value + "px" }),
-        onMousedown: T(w, ["prevent"]),
-        onTouchstart: T(w, ["prevent"]),
+        class: L(["gc-slider__handle", { "is-dragging": s.value }]),
+        style: D({ left: d.value + "px" }),
+        onMousedown: B(y, ["prevent"]),
+        onTouchstart: B(y, ["prevent"]),
         "aria-hidden": "true"
-      }, [...m[1] || (m[1] = [
+      }, [...c[1] || (c[1] = [
         l("svg", {
           class: "gc-slider__handle-icon",
           viewBox: "0 0 32 18",
@@ -324,39 +342,39 @@ const L = (r, o) => {
       ])], 38)
     ], 42, ne));
   }
-}, O = /* @__PURE__ */ L(oe, [["__scopeId", "data-v-41519849"]]);
+}, O = /* @__PURE__ */ X(oe, [["__scopeId", "data-v-b3854d8c"]]);
 function re() {
-  let r = [], o = null, e = !1;
-  function t() {
-    r = [], o = null, e = !1;
-  }
-  function s() {
-    o = performance.now(), e = !0;
-  }
-  function a(k) {
-    if (!e || o === null) return;
-    const w = Math.round(performance.now() - o);
-    r.length > 0 && w - r[r.length - 1].t < 8 || r.push({ x: Math.round(k), t: w });
+  let r = [], o = null, t = !1;
+  function e() {
+    r = [], o = null, t = !1;
   }
   function n() {
-    e = !1;
+    o = performance.now(), t = !0;
+  }
+  function a(p) {
+    if (!t || o === null) return;
+    const k = Math.round(performance.now() - o);
+    r.length > 0 && k - r[r.length - 1].t < 8 || r.push({ x: Math.round(p), t: k });
+  }
+  function s() {
+    t = !1;
   }
   function i() {
     return [...r];
   }
-  function c() {
+  function d() {
     return o === null ? 0 : Math.round(performance.now() - o);
   }
-  return { reset: t, start: s, record: a, stop: n, getTrack: i, getElapsed: c };
+  return { reset: e, start: n, record: a, stop: s, getTrack: i, getElapsed: d };
 }
 function ie() {
   if (typeof document > "u") return null;
   const r = document.querySelector('meta[name="csrf-token"]');
   if (r != null && r.content) return r.content;
-  const o = document.cookie.split("; ").find((e) => e.startsWith("XSRF-TOKEN="));
+  const o = document.cookie.split("; ").find((t) => t.startsWith("XSRF-TOKEN="));
   return o ? decodeURIComponent(o.split("=")[1]) : null;
 }
-function G() {
+function T() {
   const r = {
     "Content-Type": "application/json",
     "X-Requested-With": "XMLHttpRequest",
@@ -365,72 +383,72 @@ function G() {
   return o && (r["X-CSRF-TOKEN"] = o, r["X-XSRF-TOKEN"] = o), r;
 }
 function le(r, o) {
-  const e = x("idle"), t = x(null), s = x(null), a = x(null), n = re();
+  const t = x("idle"), e = x(null), n = x(null), a = x(null), s = re();
   async function i() {
-    e.value = "loading", s.value = null, t.value = null;
+    t.value = "loading", n.value = null, e.value = null;
     try {
-      const d = await fetch(r, {
+      const u = await fetch(r, {
         method: "POST",
-        headers: G(),
+        headers: T(),
         credentials: "same-origin"
       });
-      if (!d.ok) throw new Error(`Server error: ${d.status}`);
-      a.value = await d.json(), e.value = "ready";
-    } catch (d) {
-      e.value = "failed", s.value = "Failed to load CAPTCHA. Please refresh.", console.error("[GoalCaptcha] generate error:", d);
+      if (!u.ok) throw new Error(`Server error: ${u.status}`);
+      a.value = await u.json(), t.value = "ready";
+    } catch (u) {
+      t.value = "failed", n.value = "Failed to load CAPTCHA. Please refresh.", console.error("[GoalCaptcha] generate error:", u);
     }
   }
-  function c() {
-    e.value === "ready" && (e.value = "dragging", n.reset(), n.start());
+  function d() {
+    t.value === "ready" && (t.value = "dragging", s.reset(), s.start());
   }
-  function k(d) {
-    e.value === "dragging" && n.record(d);
+  function p(u) {
+    t.value === "dragging" && s.record(u);
   }
-  async function w(d) {
-    if (e.value !== "dragging") return;
-    n.stop(), e.value = "verifying";
-    const p = n.getTrack(), y = n.getElapsed();
+  async function k(u) {
+    if (t.value !== "dragging") return;
+    s.stop(), t.value = "verifying";
+    const v = s.getTrack(), b = s.getElapsed();
     try {
-      const f = await (await fetch(o, {
+      const c = await (await fetch(o, {
         method: "POST",
-        headers: G(),
+        headers: T(),
         credentials: "same-origin",
         body: JSON.stringify({
           captcha_id: a.value.captcha_id,
-          final_x: Math.round(d),
-          drag_time: y,
-          movement_track: p
+          final_x: Math.round(u),
+          drag_time: b,
+          movement_track: v
         })
       })).json();
-      f.success ? (t.value = f.token, e.value = "success") : (s.value = f.message ?? "Verification failed.", e.value = "failed");
-    } catch (m) {
-      e.value = "failed", s.value = "Network error. Please try again.", console.error("[GoalCaptcha] verify error:", m);
+      c.success ? (e.value = c.token, t.value = "success") : (n.value = c.message ?? "Verification failed.", t.value = "failed");
+    } catch (f) {
+      t.value = "failed", n.value = "Network error. Please try again.", console.error("[GoalCaptcha] verify error:", f);
     }
   }
-  async function g() {
-    n.reset(), await i();
+  async function y() {
+    s.reset(), await i();
   }
   return {
-    state: S(e),
-    token: S(t),
-    errorMsg: S(s),
-    captchaData: S(a),
+    state: E(t),
+    token: E(e),
+    errorMsg: E(n),
+    captchaData: E(a),
     load: i,
-    onDragStart: c,
-    onDragMove: k,
-    onDragEnd: w,
-    retry: g
+    onDragStart: d,
+    onDragMove: p,
+    onDragEnd: k,
+    retry: y
   };
 }
 const ce = ["data-state"], de = { class: "gc-modal__header" }, ue = { class: "gc-modal__scene" }, he = {
   key: 0,
   class: "gc-modal__skeleton",
   "aria-busy": "true"
-}, ge = {
+}, fe = {
   key: 0,
   class: "gc-modal__verifying",
   "aria-live": "polite"
-}, fe = {
+}, ge = {
   key: 2,
   class: "gc-modal__error-scene",
   role: "alert"
@@ -489,49 +507,49 @@ const ce = ["data-state"], de = { class: "gc-modal__header" }, ue = { class: "gc
   },
   emits: ["verified", "failed", "loaded", "close"],
   setup(r, { emit: o }) {
-    const e = r, t = o, {
-      state: s,
+    const t = r, e = o, {
+      state: n,
       token: a,
-      errorMsg: n,
+      errorMsg: s,
       captchaData: i,
-      load: c,
-      onDragStart: k,
-      onDragMove: w,
-      onDragEnd: g,
-      retry: d
-    } = le(e.generateUrl, e.verifyUrl), p = x(null);
-    function y(f) {
-      p.value = f, w(f);
+      load: d,
+      onDragStart: p,
+      onDragMove: k,
+      onDragEnd: y,
+      retry: u
+    } = le(t.generateUrl, t.verifyUrl), v = x(null);
+    function b(c) {
+      v.value = c, k(c);
     }
-    function m(f) {
-      p.value = f, g(f);
+    function f(c) {
+      v.value = c, y(c);
     }
-    return A(s, (f) => {
-      var h;
-      f === "success" && (p.value = ((h = i.value) == null ? void 0 : h.target_x) ?? p.value, t("verified", a.value)), f === "failed" && t("failed", n.value), f === "ready" && t("loaded", i.value);
-    }), X(() => {
-      e.autoLoad && c();
-    }), (f, h) => {
-      var D;
-      return v(), _("div", {
-        class: P(["gc-modal", [`gc-modal--${r.theme}`, `gc-modal--${r.difficulty}`]]),
-        "data-state": u(s),
+    return $(n, (c) => {
+      var g;
+      c === "success" && (v.value = ((g = i.value) == null ? void 0 : g.target_x) ?? v.value, e("verified", a.value)), c === "failed" && e("failed", s.value), c === "ready" && e("loaded", i.value);
+    }), G(() => {
+      t.autoLoad && d();
+    }), (c, g) => {
+      var w;
+      return m(), _("div", {
+        class: L(["gc-modal", [`gc-modal--${r.theme}`, `gc-modal--${r.difficulty}`]]),
+        "data-state": h(n),
         role: "dialog",
         "aria-modal": "true",
         "aria-label": "Football goal CAPTCHA verification"
       }, [
         l("div", de, [
-          h[4] || (h[4] = l("div", { class: "gc-modal__header-text" }, [
+          g[4] || (g[4] = l("div", { class: "gc-modal__header-text" }, [
             l("h2", { class: "gc-modal__title" }, "Confirm you're not a robot"),
             l("p", { class: "gc-modal__subtitle" }, "Drag the slider left or right to score a goal")
           ], -1)),
-          r.closable ? (v(), _("button", {
+          r.closable ? (m(), _("button", {
             key: 0,
             type: "button",
             class: "gc-modal__close",
             "aria-label": "Close",
-            onClick: h[0] || (h[0] = (M) => f.$emit("close"))
-          }, [...h[3] || (h[3] = [
+            onClick: g[0] || (g[0] = (S) => c.$emit("close"))
+          }, [...g[3] || (g[3] = [
             l("svg", {
               viewBox: "0 0 24 24",
               width: "18",
@@ -554,68 +572,68 @@ const ce = ["data-state"], de = { class: "gc-modal__header" }, ue = { class: "gc
                 y2: "18"
               })
             ], -1)
-          ])])) : b("", !0)
+          ])])) : M("", !0)
         ]),
         l("div", ue, [
-          u(s) === "loading" ? (v(), _("div", he)) : u(i) ? (v(), _($, { key: 1 }, [
-            U(W, {
-              "captcha-data": u(i),
-              "ball-x": p.value,
-              "show-success": u(s) === "success"
+          h(n) === "loading" ? (m(), _("div", he)) : h(i) ? (m(), _(W, { key: 1 }, [
+            A(N, {
+              "captcha-data": h(i),
+              "ball-x": v.value,
+              "show-success": h(n) === "success"
             }, null, 8, ["captcha-data", "ball-x", "show-success"]),
-            u(s) === "verifying" ? (v(), _("div", ge, [...h[5] || (h[5] = [
+            h(n) === "verifying" ? (m(), _("div", fe, [...g[5] || (g[5] = [
               l("span", {
                 class: "gc-spinner",
                 "aria-hidden": "true"
               }, null, -1),
               l("span", null, "Verifying…", -1)
-            ])])) : b("", !0)
-          ], 64)) : u(s) === "failed" ? (v(), _("div", fe, [
-            h[6] || (h[6] = l("div", {
+            ])])) : M("", !0)
+          ], 64)) : h(n) === "failed" ? (m(), _("div", ge, [
+            g[6] || (g[6] = l("div", {
               class: "gc-modal__error-icon",
               "aria-hidden": "true"
             }, "⚽", -1)),
-            l("p", ve, N(u(n) ?? "Verification failed. Please try again."), 1)
-          ])) : (v(), _("div", me, [
+            l("p", ve, U(h(s) ?? "Verification failed. Please try again."), 1)
+          ])) : (m(), _("div", me, [
             l("button", {
               type: "button",
               class: "gc-btn-primary",
-              onClick: h[1] || (h[1] = (...M) => u(c) && u(c)(...M))
+              onClick: g[1] || (g[1] = (...S) => h(d) && h(d)(...S))
             }, "Start Verification")
           ]))
         ]),
         l("div", _e, [
-          u(i) ? (v(), j(O, {
+          h(i) ? (m(), j(O, {
             key: 0,
-            "ball-start-x": u(i).ball_start_x,
-            "track-width": ((D = u(i).canvas) == null ? void 0 : D.width) ?? 400,
-            success: u(s) === "success",
-            disabled: u(s) === "verifying" || u(s) === "success",
-            onDragStart: u(k),
-            onDragMove: y,
-            onDragEnd: m
-          }, null, 8, ["ball-start-x", "track-width", "success", "disabled", "onDragStart"])) : u(s) === "loading" ? (v(), _("div", pe)) : u(s) === "failed" ? (v(), _("div", ye, [
+            "ball-start-x": h(i).ball_start_x,
+            "track-width": ((w = h(i).canvas) == null ? void 0 : w.width) ?? 400,
+            success: h(n) === "success",
+            disabled: h(n) === "verifying" || h(n) === "success",
+            onDragStart: h(p),
+            onDragMove: b,
+            onDragEnd: f
+          }, null, 8, ["ball-start-x", "track-width", "success", "disabled", "onDragStart"])) : h(n) === "loading" ? (m(), _("div", pe)) : h(n) === "failed" ? (m(), _("div", ye, [
             l("button", {
               type: "button",
               class: "gc-btn-primary",
-              onClick: h[2] || (h[2] = (...M) => u(d) && u(d)(...M))
+              onClick: g[2] || (g[2] = (...S) => h(u) && h(u)(...S))
             }, "↺ Try again")
-          ])) : b("", !0)
+          ])) : M("", !0)
         ]),
-        u(a) ? (v(), _("input", {
+        h(a) ? (m(), _("input", {
           key: 0,
           type: "hidden",
           name: r.fieldName,
-          value: u(a)
-        }, null, 8, ke)) : b("", !0)
+          value: h(a)
+        }, null, 8, ke)) : M("", !0)
       ], 10, ce);
     };
   }
-}, we = {
+}, xe = {
   class: "goal-captcha__success",
   role: "status",
   "aria-live": "polite"
-}, xe = { class: "goal-captcha__success-text" }, be = {
+}, we = { class: "goal-captcha__success-text" }, be = {
   __name: "SuccessAnimation",
   props: {
     message: {
@@ -624,8 +642,8 @@ const ce = ["data-state"], de = { class: "gc-modal__header" }, ue = { class: "gc
     }
   },
   setup(r) {
-    return (o, e) => (v(), _("div", we, [
-      e[0] || (e[0] = l("div", { class: "goal-captcha__success-icon" }, [
+    return (o, t) => (m(), _("div", xe, [
+      t[0] || (t[0] = l("div", { class: "goal-captcha__success-icon" }, [
         l("svg", {
           viewBox: "0 0 52 52",
           class: "goal-captcha__checkmark",
@@ -645,24 +663,24 @@ const ce = ["data-state"], de = { class: "gc-modal__header" }, ue = { class: "gc
           })
         ])
       ], -1)),
-      l("p", xe, N(r.message), 1)
+      l("p", we, U(r.message), 1)
     ]));
   }
-}, Me = /* @__PURE__ */ L(be, [["__scopeId", "data-v-3f0157c9"]]), Se = (r, o = {}) => {
+}, Me = /* @__PURE__ */ X(be, [["__scopeId", "data-v-3f0157c9"]]), Se = (r, o = {}) => {
   (o.generateUrl || o.verifyUrl) && (window.__GoalCaptchaConfig = {
     generateUrl: o.generateUrl ?? "/_goal_captcha/generate",
     verifyUrl: o.verifyUrl ?? "/_goal_captcha/verify",
     theme: o.theme ?? "football",
     difficulty: o.difficulty ?? "medium"
-  }), r.component("GoalCaptcha", R), r.component("GoalCanvas", W), r.component("GoalSlider", O), r.component("SuccessAnimation", Me);
+  }), r.component("GoalCaptcha", R), r.component("GoalCanvas", N), r.component("GoalSlider", O), r.component("SuccessAnimation", Me);
 }, Ee = { install: Se };
 function Pe() {
   typeof document > "u" || document.addEventListener("DOMContentLoaded", () => {
     const { createApp: r } = window.Vue ?? require("vue");
     document.querySelectorAll(".goal-captcha-wrapper").forEach((o) => {
-      const e = o.querySelector("#goal-captcha-app");
-      if (!e) return;
-      const t = o.querySelector('input[type="hidden"]'), s = {
+      const t = o.querySelector("#goal-captcha-app");
+      if (!t) return;
+      const e = o.querySelector('input[type="hidden"]'), n = {
         generateUrl: o.dataset.generateUrl,
         verifyUrl: o.dataset.verifyUrl,
         theme: o.dataset.theme ?? "football",
@@ -670,16 +688,16 @@ function Pe() {
         fieldName: o.dataset.fieldName ?? "captcha_token"
       };
       r(R, {
-        ...s,
-        onVerified: (n) => {
-          t && (t.value = n);
+        ...n,
+        onVerified: (s) => {
+          e && (e.value = s);
         }
-      }).mount(e);
+      }).mount(t);
     });
   });
 }
 export {
-  W as GoalCanvas,
+  N as GoalCanvas,
   R as GoalCaptcha,
   O as GoalSlider,
   Me as SuccessAnimation,

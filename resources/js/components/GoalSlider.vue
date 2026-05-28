@@ -24,7 +24,7 @@
     @keydown="onKeydown"
   >
     <!-- Filled progress (behind chevrons) -->
-    <div class="gc-slider__fill" :style="{ width: fillPercent + '%' }" />
+    <div class="gc-slider__fill" :style="fillStyle" />
 
     <!-- Left chevrons -->
     <div class="gc-slider__chevrons gc-slider__chevrons--left" aria-hidden="true">
@@ -64,13 +64,13 @@ const emit = defineEmits(['drag-start', 'drag-move', 'drag-end'])
 const props = defineProps({
   ballStartX: { type: Number, default: 20 },
   trackWidth: { type: Number, default: 400 },
-  handleSize: { type: Number, default: 52 },
+  handleSize: { type: Number, default: 72 }, // matching the 72px pill width style
   success:    { type: Boolean, default: false },
   disabled:   { type: Boolean, default: false },
 })
 
 const trackEl    = ref(null)
-const currentX   = ref(props.ballStartX)
+const currentX   = ref(props.trackWidth / 2) // initialize handle in the exact center
 const isDragging = ref(false)
 
 const HANDLE_HALF = computed(() => props.handleSize / 2)
@@ -79,9 +79,38 @@ const handleLeft = computed(() =>
   Math.max(0, Math.min(currentX.value - HANDLE_HALF.value, props.trackWidth - props.handleSize))
 )
 
-const fillPercent = computed(() =>
-  Math.round((currentX.value / props.trackWidth) * 100)
-)
+// Dynamic piecewise scaling mapping centered handle to the actual ball coordinates
+const ballX = computed(() => {
+  const center = props.trackWidth / 2
+  const offset = currentX.value - center
+  const maxOffset = center - props.handleSize / 2
+  if (maxOffset <= 0) return props.ballStartX
+
+  if (offset < 0) {
+    const scaleLeft = props.ballStartX / maxOffset
+    return Math.max(0, props.ballStartX + offset * scaleLeft)
+  } else {
+    const scaleRight = (props.trackWidth - props.ballStartX) / maxOffset
+    return Math.min(props.trackWidth, props.ballStartX + offset * scaleRight)
+  }
+})
+
+// Fill area extending from the center of the slider track to the current handle position
+const fillStyle = computed(() => {
+  const center = props.trackWidth / 2
+  const x = currentX.value
+  if (x < center) {
+    return {
+      left: `${x}px`,
+      width: `${center - x}px`
+    }
+  } else {
+    return {
+      left: `${center}px`,
+      width: `${x - center}px`
+    }
+  }
+})
 
 // ─── Drag handlers ────────────────────────────────────────────────────────
 
@@ -100,9 +129,9 @@ function onMove(e) {
   if (!isDragging.value) return
   const clientX   = e.touches ? e.touches[0].clientX : e.clientX
   const rect      = trackEl.value.getBoundingClientRect()
-  const relativeX = Math.max(0, Math.min(clientX - rect.left, props.trackWidth))
+  const relativeX = Math.max(HANDLE_HALF.value, Math.min(clientX - rect.left, props.trackWidth - HANDLE_HALF.value))
   currentX.value  = relativeX
-  emit('drag-move', relativeX)
+  emit('drag-move', ballX.value)
 }
 
 function endDrag() {
@@ -112,7 +141,7 @@ function endDrag() {
   window.removeEventListener('touchmove', onMove)
   window.removeEventListener('mouseup',   endDrag)
   window.removeEventListener('touchend',  endDrag)
-  emit('drag-end', currentX.value)
+  emit('drag-end', ballX.value)
 }
 
 // ─── Keyboard accessibility ───────────────────────────────────────────────
@@ -122,11 +151,12 @@ function onKeydown(e) {
   const step = 5
   if (e.key === 'ArrowRight') {
     if (!isDragging.value) { isDragging.value = true; emit('drag-start') }
-    currentX.value = Math.min(currentX.value + step, props.trackWidth)
-    emit('drag-move', currentX.value)
+    currentX.value = Math.min(currentX.value + step, props.trackWidth - HANDLE_HALF.value)
+    emit('drag-move', ballX.value)
   } else if (e.key === 'ArrowLeft') {
-    currentX.value = Math.max(currentX.value - step, 0)
-    emit('drag-move', currentX.value)
+    if (!isDragging.value) { isDragging.value = true; emit('drag-start') }
+    currentX.value = Math.max(currentX.value - step, HANDLE_HALF.value)
+    emit('drag-move', ballX.value)
   } else if ((e.key === 'Enter' || e.key === ' ') && isDragging.value) {
     endDrag()
   }
@@ -162,11 +192,10 @@ onBeforeUnmount(() => {
 .gc-slider__fill {
   position:       absolute;
   top:            0;
-  left:           0;
   height:         100%;
-  background:     linear-gradient(90deg, rgba(37,99,235,.15), rgba(37,99,235,.08));
+  background:     linear-gradient(90deg, #60a5fa, #3b82f6);
   pointer-events: none;
-  transition:     width 0.04s linear;
+  transition:     width 0.04s linear, left 0.04s linear;
 }
 
 /* ── Chevrons ─────────────────────────────────────────────────────────────── */

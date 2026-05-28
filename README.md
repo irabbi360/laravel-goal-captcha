@@ -29,15 +29,15 @@ Users drag a football into the goal net. The backend verifies alignment, drag sp
 
 ## Installation
 
-\`\`\`bash
+```bash
 composer require irabbi360/laravel-goal-captcha
-\`\`\`
+```
 
 Publish assets and config:
 
-\`\`\`bash
+```bash
 php artisan goal-captcha:install
-\`\`\`
+```
 
 ---
 
@@ -45,25 +45,25 @@ php artisan goal-captcha:install
 
 Add the component anywhere in your form:
 
-\`\`\`blade
+```blade
 <form method="POST" action="/login">
     @csrf
     <x-goal-captcha />
     <button type="submit">Login</button>
 </form>
-\`\`\`
+```
 
 Protect the route with the middleware:
 
-\`\`\`php
+```php
 Route::middleware('goal-captcha')->post('/login', LoginController::class);
-\`\`\`
+```
 
 ---
 
 ## Quick Start — Vue 3 / Inertia
 
-\`\`\`vue
+```vue
 <script setup>
 import { GoalCaptcha } from '@irabbi360/goal-captcha'
 import '@irabbi360/goal-captcha/style'
@@ -78,13 +78,13 @@ const token = ref(null)
     @verified="token = $event"
   />
 </template>
-\`\`\`
+```
 
 ---
 
 ## Vue Plugin
 
-\`\`\`js
+```js
 import GoalCaptchaPlugin from '@irabbi360/goal-captcha'
 
 createApp(App)
@@ -95,7 +95,7 @@ createApp(App)
     difficulty:  'medium',
   })
   .mount('#app')
-\`\`\`
+```
 
 ---
 
@@ -103,14 +103,14 @@ createApp(App)
 
 | Method | URL | Description |
 |--------|-----|-------------|
-| POST | \`/_goal_captcha/generate\` | Returns a CAPTCHA challenge |
-| POST | \`/_goal_captcha/verify\`   | Verifies submission, returns one-time token |
+| POST | `/_goal_captcha/generate` | Returns a CAPTCHA challenge |
+| POST | `/_goal_captcha/verify`   | Verifies submission, returns one-time token |
 
 ---
 
 ## Configuration
 
-\`\`\`php
+```php
 return [
     'driver'                   => 'cache',    // 'redis' | 'cache'
     'expire'                   => 120,
@@ -121,27 +121,27 @@ return [
     'difficulty'               => 'medium',   // 'easy' | 'medium' | 'hard'
     'enable_behavior_analysis' => true,
 ];
-\`\`\`
+```
 
 ---
 
 ## Events
 
-\`\`\`php
+```php
 Event::listen(CaptchaVerified::class, fn($e) => logger('solved', ['id' => $e->captcha->captchaId]));
-\`\`\`
+```
 
 | Event | When |
 |-------|------|
-| \`CaptchaGenerated\` | Challenge created |
-| \`CaptchaVerified\`  | Human confirmed |
-| \`CaptchaFailed\`    | Verification rejected |
+| `CaptchaGenerated` | Challenge created |
+| `CaptchaVerified`  | Human confirmed |
+| `CaptchaFailed`    | Verification rejected |
 
 ---
 
 ## Architecture
 
-\`\`\`
+```
 src/
 ├── GoalCaptchaServiceProvider.php
 ├── LaravelGoalCaptcha.php
@@ -160,16 +160,16 @@ resources/js/
 ├── canvas/             renderer.js, animation.js, physics.js
 ├── utils/              motionTracker.js
 └── index.js            Vue plugin + Blade auto-mount
-\`\`\`
+```
 
 ---
 
 ## Testing
 
-\`\`\`bash
+```bash
 composer test   # Pest (PHP)
 npm run test    # Vitest (JS)
-\`\`\`
+```
 
 ---
 

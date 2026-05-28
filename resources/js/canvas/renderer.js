@@ -53,12 +53,8 @@ export class SceneRenderer {
     this.images          = {}
     this.ready           = false
 
-    // Place keeper on the opposite side of the goal from the target ring
-    const cw = canvas.width
-    const tX = captchaData.target_x ?? (cw * 0.65)
-    this.keeperBaseX = tX >= cw * 0.50
-      ? Math.round(cw * 0.26)   // target on right → keeper on left
-      : Math.round(cw * 0.74)   // target on left  → keeper on right
+    // Keeper starts at goal centre — GoalCanvas animation drives offset to any position
+    this.keeperBaseX = Math.round(canvas.width * 0.50)
   }
 
   async preload() {

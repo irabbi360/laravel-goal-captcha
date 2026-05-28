@@ -38,7 +38,7 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { SceneRenderer } from '../canvas/renderer.js'
-import { randomWalk }    from '../canvas/animation.js'
+import { tween }        from '../canvas/animation.js'
 
 const props = defineProps({
   captchaData: {
@@ -66,16 +66,43 @@ onMounted(async () => {
   renderer = new SceneRenderer(canvasEl.value, props.captchaData)
   await renderer.preload()
 
-  // Goalkeeper random left/right walk animation
-  stopBounce = randomWalk(
-    50,   // ±50 px around keeperBaseX — stays comfortably in their half of the goal
-    (offset) => {
+  // Goalkeeper roams the full goal width, avoiding the target ring zone
+  const cw       = width
+  const targetX  = props.captchaData.target_x ?? (cw * 0.65)
+  const goalL    = cw * 0.11          // inner left bound (clear of post)
+  const goalR    = cw * 0.89          // inner right bound (clear of post)
+  const avoidR   = targetX + 58       // exclusion zone around target ring
+  const avoidL   = targetX - 58
+
+  /** Pick a random keeper centre-X that is outside the target exclusion zone. */
+  function pickKeeperX() {
+    const zones = []
+    if (avoidL - goalL > 30) zones.push([goalL, avoidL])
+    if (goalR - avoidR > 30) zones.push([avoidR, goalR])
+    if (!zones.length)       zones.push([goalL, goalR])  // fallback: full goal
+    const [lo, hi] = zones[Math.floor(Math.random() * zones.length)]
+    return lo + Math.random() * (hi - lo)
+  }
+
+  let cancelStep = null
+  function doStep() {
+    if (!renderer) return
+    const nextX  = pickKeeperX()
+    const fromX  = renderer.keeperBaseX + renderer.keeperOffsetX
+    const dur    = 500 + Math.random() * 600    // 500–1100 ms slide
+    const hold   = 700 + Math.random() * 1000   // 700–1700 ms pause
+    cancelStep = tween(fromX, nextX, dur, (val) => {
       if (renderer) {
-        renderer.keeperOffsetX = offset
+        renderer.keeperOffsetX = val - renderer.keeperBaseX
         renderer.draw()
       }
-    }
-  )
+    }, () => {
+      if (renderer) setTimeout(doStep, hold)
+    })
+  }
+  doStep()
+
+  stopBounce = () => { cancelStep?.() }
 })
 
 onBeforeUnmount(() => {

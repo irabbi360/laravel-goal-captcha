@@ -15,15 +15,18 @@
     "module":  "resources/dist/goal-captcha.es.js",
     "exports": {
         ".": {
-            "import":  "./resources/dist/goal-captcha.es.js",
+            "import":  "./resources/js/index.js",
             "require": "./resources/dist/goal-captcha.umd.js"
         },
-        "./style": "./resources/dist/goal-captcha.css"
+        "./style":       "./resources/js/style.css",
+        "./dist-style":  "./resources/dist/goal-captcha.css",
+        "./vite-plugin": "./vite-plugin.js"
     },
     "files": [
         "resources/dist",
         "resources/js",
-        "resources/images"
+        "resources/images",
+        "vite-plugin.js"
     ],
 
     "peerDependencies": {

@@ -1,0 +1,29 @@
+/**
+ * GoalCaptcha — package styles
+ *
+ * Imported via:  import '@irabbi360/goal-captcha/style'
+ *
+ * Component-scoped styles live in the Vue SFC <style scoped> blocks.
+ * This file covers global tokens and the wrapper reset.
+ */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+.goal-captcha {
+    --gc-primary:    #f1c40f;
+    --gc-bg:         #16213e;
+    --gc-bg-dark:    #1a1a2e;
+    --gc-success:    #27ae60;
+    --gc-danger:     #e74c3c;
+    --gc-radius:     10px;
+    --gc-font:       system-ui, -apple-system, sans-serif;
+
+    position:    relative;
+    width:       100%;
+    max-width:   400px;
+    font-family: var(--gc-font);
+}

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Irabbi360\LaravelGoalCaptcha\Contracts\CaptchaStoreInterface;
 use Irabbi360\LaravelGoalCaptcha\Contracts\MotionAnalyzerInterface;
+use Irabbi360\LaravelGoalCaptcha\Commands\LaravelGoalCaptchaCommand;
 use Irabbi360\LaravelGoalCaptcha\Http\Middleware\ValidateCaptchaToken;
 use Irabbi360\LaravelGoalCaptcha\Services\AssetManager;
 use Irabbi360\LaravelGoalCaptcha\Services\CaptchaGenerator;
@@ -39,6 +40,10 @@ class LaravelGoalCaptchaServiceProvider extends ServiceProvider
         $this->registerViews();
         $this->registerBladeComponents();
         $this->registerMiddlewareAlias();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([LaravelGoalCaptchaCommand::class]);
+        }
     }
 
     // ─── Register ───────────────────────────────────────────────────────────

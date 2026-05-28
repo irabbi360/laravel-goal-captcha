@@ -64,6 +64,21 @@ Route::middleware('goal-captcha')->post('/login', LoginController::class);
 ## Quick Start — Vue 3 / Inertia
 
 ```vue
+import { defineConfig } from 'vite'
+import laravel from 'laravel-vite-plugin'
+import vue from '@vitejs/plugin-vue'
+import goalCaptcha from './vendor/irabbi360/laravel-goal-captcha/vite-plugin.js'
+
+export default defineConfig({
+    plugins: [
+        laravel({ input: ['resources/js/app.js'] }),
+        vue(),
+        goalCaptcha(),   // ← adds the alias automatically
+    ],
+})
+```
+
+```vue
 <script setup>
 import { GoalCaptcha } from '@irabbi360/goal-captcha'
 import '@irabbi360/goal-captcha/style'

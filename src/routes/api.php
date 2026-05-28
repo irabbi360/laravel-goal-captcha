@@ -6,6 +6,7 @@ use Irabbi360\LaravelGoalCaptcha\Http\Controllers\VerifyCaptchaController;
 
 Route::prefix(config('goal-captcha.route_prefix', '_goal_captcha'))
     ->middleware(config('goal-captcha.middleware', ['web']))
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
     ->name('goal-captcha.')
     ->group(function (): void {
         Route::post('/generate', GenerateCaptchaController::class)

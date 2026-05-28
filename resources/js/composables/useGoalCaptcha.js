@@ -10,6 +10,7 @@
 
 import { ref, readonly } from 'vue'
 import { createMotionTracker } from '../utils/motionTracker.js'
+import { jsonHeaders } from '../utils/csrf.js'
 
 /** @typedef {'idle'|'loading'|'ready'|'dragging'|'verifying'|'success'|'failed'} CaptchaState */
 
@@ -31,8 +32,8 @@ export function useGoalCaptcha(generateUrl, verifyUrl) {
 
     try {
       const res  = await fetch(generateUrl, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        method:      'POST',
+        headers:     jsonHeaders(),
         credentials: 'same-origin',
       })
 
@@ -72,8 +73,8 @@ export function useGoalCaptcha(generateUrl, verifyUrl) {
 
     try {
       const res = await fetch(verifyUrl, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        method:      'POST',
+        headers:     jsonHeaders(),
         credentials: 'same-origin',
         body: JSON.stringify({
           captcha_id:     captchaData.value.captcha_id,

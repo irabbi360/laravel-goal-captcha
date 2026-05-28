@@ -78,7 +78,7 @@ export class SceneRenderer {
     this._drawDecoys(data.scene.decoys ?? [])
     this._drawTargetRing(data.target_x, height)
     this._drawGoalkeeper(data.scene, width, height)
-    this._drawBall(height, data.scene.ball_radius ?? 16)
+    this._drawBall(height, data.scene?.ball_radius ?? 18)
   }
 
   // ─── Layer renderers ─────────────────────────────────────────────────────
@@ -143,10 +143,10 @@ export class SceneRenderer {
 
   _drawGoalkeeper(scene, w, h) {
     const img = this.images.goalkeeper
-    const kw  = 40
-    const kh  = 80
+    const kw  = Math.round(h * 0.35)
+    const kh  = Math.round(h * 0.72)
     const kx  = Math.round(w / 2 - kw / 2 + (scene.keeper_offset_x ?? 0))
-    const ky  = Math.round(h * 0.2)
+    const ky  = Math.round(h * 0.18)
 
     if (img) {
       this.ctx.drawImage(img, kx, ky, kw, kh)
@@ -155,44 +155,70 @@ export class SceneRenderer {
 
     // Fallback: simple stick figure
     this.ctx.fillStyle = '#e74c3c'
-    this.ctx.fillRect(kx + 12, ky, 16, kh)
+    this.ctx.fillRect(kx + Math.round(kw * 0.3), ky + Math.round(kh * 0.15), Math.round(kw * 0.4), Math.round(kh * 0.55))
     this.ctx.beginPath()
-    this.ctx.arc(kx + 20, ky - 10, 10, 0, Math.PI * 2)
+    this.ctx.arc(kx + Math.round(kw / 2), ky + Math.round(kh * 0.1), Math.round(kw * 0.18), 0, Math.PI * 2)
     this.ctx.fill()
   }
 
-  /** The real target ring (bright + solid). */
+  /** The target ring — metallic gray hoop inside the goal area. */
   _drawTargetRing(targetX, h) {
     const cx  = targetX
-    const cy  = Math.round(h * 0.72)
-    const r   = 14
+    const cy  = Math.round(h * 0.38)   // inside goal post area
+    const r   = Math.round(h * 0.14)   // ~14% of canvas height
+    const ctx = this.ctx
 
-    this.ctx.save()
-    this.ctx.strokeStyle = '#f1c40f'
-    this.ctx.lineWidth   = 3
-    this.ctx.shadowColor = '#f39c12'
-    this.ctx.shadowBlur  = 8
-    this.ctx.beginPath()
-    this.ctx.arc(cx, cy, r, 0, Math.PI * 2)
-    this.ctx.stroke()
+    ctx.save()
 
-    // Inner dot
-    this.ctx.fillStyle = 'rgba(241,196,15,0.4)'
-    this.ctx.beginPath()
-    this.ctx.arc(cx, cy, r * 0.4, 0, Math.PI * 2)
-    this.ctx.fill()
-    this.ctx.restore()
+    // Outer dark shadow ring
+    ctx.shadowColor = 'rgba(0,0,0,.55)'
+    ctx.shadowBlur  = 14
+    ctx.strokeStyle = 'rgba(30,30,30,.6)'
+    ctx.lineWidth   = r * 0.58 + 2
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.stroke()
+    ctx.shadowBlur = 0
+
+    // Metallic gradient ring (main)
+    const grad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r)
+    grad.addColorStop(0,   '#d4d4d4')
+    grad.addColorStop(0.25,'#a0a0a0')
+    grad.addColorStop(0.5, '#707070')
+    grad.addColorStop(0.75,'#a8a8a8')
+    grad.addColorStop(1,   '#cecece')
+    ctx.strokeStyle = grad
+    ctx.lineWidth   = r * 0.55
+    ctx.beginPath()
+    ctx.arc(cx, cy, r, 0, Math.PI * 2)
+    ctx.stroke()
+
+    // Inner highlight arc (top-left glint)
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'
+    ctx.lineWidth   = 3
+    ctx.beginPath()
+    ctx.arc(cx - r * 0.15, cy - r * 0.15, r - r * 0.3, Math.PI * 1.05, Math.PI * 1.7)
+    ctx.stroke()
+
+    // Inner dark edge
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'
+    ctx.lineWidth   = 2
+    ctx.beginPath()
+    ctx.arc(cx, cy, r - r * 0.28, 0, Math.PI * 2)
+    ctx.stroke()
+
+    ctx.restore()
   }
 
   /** Decoy rings — semi-transparent, misleading. */
   _drawDecoys(decoys) {
     for (const decoy of decoys) {
-      const cy = Math.round(this.canvas.height * 0.72)
+      const cy = Math.round(this.canvas.height * 0.38)
       this.ctx.save()
-      this.ctx.strokeStyle = `rgba(241,196,15,${decoy.opacity})`
-      this.ctx.lineWidth   = 2
+      this.ctx.strokeStyle = `rgba(180,180,180,${decoy.opacity})`
+      this.ctx.lineWidth   = 4
       this.ctx.beginPath()
-      this.ctx.arc(decoy.x, cy, 14, 0, Math.PI * 2)
+      this.ctx.arc(decoy.x, cy, Math.round(this.canvas.height * 0.12), 0, Math.PI * 2)
       this.ctx.stroke()
       this.ctx.restore()
     }
@@ -201,7 +227,7 @@ export class SceneRenderer {
   _drawBall(h, radius) {
     const img = this.images.ball
     const cx  = this.ballX
-    const cy  = Math.round(h * 0.72)
+    const cy  = Math.round(h * 0.76)   // ground level
 
     if (img) {
       this.ctx.drawImage(img, cx - radius, cy - radius, radius * 2, radius * 2)

@@ -1,113 +1,119 @@
 <template>
   <div
-    class="goal-captcha"
-    :class="[`goal-captcha--${theme}`, `goal-captcha--${difficulty}`]"
+    class="gc-modal"
+    :class="[`gc-modal--${theme}`, `gc-modal--${difficulty}`]"
     :data-state="state"
-    role="group"
+    role="dialog"
+    aria-modal="true"
     aria-label="Football goal CAPTCHA verification"
   >
-
-    <!-- ── Loading skeleton ──────────────────────────────────────── -->
-    <div v-if="state === 'loading'" class="goal-captcha__skeleton" aria-busy="true">
-      <div class="goal-captcha__skeleton-canvas" />
-      <div class="goal-captcha__skeleton-slider" />
-      <p class="goal-captcha__skeleton-text">Loading challenge…</p>
-    </div>
-
-    <!-- ── Success state ─────────────────────────────────────────── -->
-    <SuccessAnimation v-else-if="state === 'success'" />
-
-    <!-- ── Failed state ──────────────────────────────────────────── -->
-    <div v-else-if="state === 'failed'" class="goal-captcha__error" role="alert">
-      <p class="goal-captcha__error-text">{{ errorMsg ?? 'Verification failed.' }}</p>
+    <!-- ── Header ────────────────────────────────────────────────── -->
+    <div class="gc-modal__header">
+      <div class="gc-modal__header-text">
+        <h2 class="gc-modal__title">Confirm you're not a robot</h2>
+        <p class="gc-modal__subtitle">Drag the slider left or right to score a goal</p>
+      </div>
       <button
+        v-if="closable"
         type="button"
-        class="goal-captcha__retry-btn"
-        @click="retry"
-        :disabled="state === 'loading'"
+        class="gc-modal__close"
+        aria-label="Close"
+        @click="$emit('close')"
       >
-        Try again
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
     </div>
 
-    <!-- ── Ready / Dragging / Verifying ──────────────────────────── -->
-    <template v-else-if="captchaData">
-      <!-- Canvas scene -->
-      <GoalCanvas
-        :captcha-data="captchaData"
-        :ball-x="currentBallX"
-      />
+    <!-- ── Canvas area ───────────────────────────────────────────── -->
+    <div class="gc-modal__scene">
+      <!-- Loading skeleton -->
+      <div v-if="state === 'loading'" class="gc-modal__skeleton" aria-busy="true" />
 
-      <!-- Slider -->
+      <!-- Active canvas (ready / dragging / verifying / success) -->
+      <template v-else-if="captchaData">
+        <GoalCanvas
+          :captcha-data="captchaData"
+          :ball-x="currentBallX"
+          :show-success="state === 'success'"
+        />
+        <!-- Verifying overlay -->
+        <div v-if="state === 'verifying'" class="gc-modal__verifying" aria-live="polite">
+          <span class="gc-spinner" aria-hidden="true" />
+          <span>Verifying…</span>
+        </div>
+      </template>
+
+      <!-- Error scene -->
+      <div v-else-if="state === 'failed'" class="gc-modal__error-scene" role="alert">
+        <div class="gc-modal__error-icon" aria-hidden="true">⚽</div>
+        <p class="gc-modal__error-msg">{{ errorMsg ?? 'Verification failed. Please try again.' }}</p>
+      </div>
+
+      <!-- Idle -->
+      <div v-else class="gc-modal__idle">
+        <button type="button" class="gc-btn-primary" @click="load">Start Verification</button>
+      </div>
+    </div>
+
+    <!-- ── Slider area ───────────────────────────────────────────── -->
+    <div class="gc-modal__slider-wrap">
       <GoalSlider
+        v-if="captchaData"
         :ball-start-x="captchaData.ball_start_x"
         :track-width="captchaData.canvas?.width ?? 400"
+        :success="state === 'success'"
+        :disabled="state === 'verifying' || state === 'success'"
         @drag-start="onDragStart"
-        @drag-move="onDragMove"
-        @drag-end="onDragEnd"
+        @drag-move="handleDragMove"
+        @drag-end="handleDragEnd"
       />
-
-      <!-- Verifying overlay -->
-      <div v-if="state === 'verifying'" class="goal-captcha__verifying" aria-live="polite">
-        <span class="goal-captcha__spinner" aria-hidden="true" />
-        <span>Verifying…</span>
+      <div v-else-if="state === 'loading'" class="gc-modal__slider-skeleton" />
+      <div v-else-if="state === 'failed'" class="gc-modal__error-actions">
+        <button type="button" class="gc-btn-primary" @click="retry">↺ Try again</button>
       </div>
-    </template>
-
-    <!-- ── Idle (before first load) ──────────────────────────────── -->
-    <div v-else class="goal-captcha__idle">
-      <button type="button" class="goal-captcha__start-btn" @click="load">
-        Start Verification
-      </button>
     </div>
 
     <!-- One-time token injected into the parent form -->
-    <input
-      v-if="token"
-      type="hidden"
-      :name="fieldName"
-      :value="token"
-    >
+    <input v-if="token" type="hidden" :name="fieldName" :value="token" />
   </div>
 </template>
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import GoalCanvas       from './GoalCanvas.vue'
-import GoalSlider       from './GoalSlider.vue'
-import SuccessAnimation from './SuccessAnimation.vue'
+import GoalCanvas from './GoalCanvas.vue'
+import GoalSlider from './GoalSlider.vue'
 import { useGoalCaptcha } from '../composables/useGoalCaptcha.js'
 
 // ─── Props ────────────────────────────────────────────────────────────────
 
 const props = defineProps({
-  /** POST URL of the generate endpoint */
   generateUrl: {
     type:    String,
     default: () => window.__GoalCaptchaConfig?.generateUrl ?? '/_goal_captcha/generate',
   },
-  /** POST URL of the verify endpoint */
   verifyUrl: {
     type:    String,
     default: () => window.__GoalCaptchaConfig?.verifyUrl ?? '/_goal_captcha/verify',
   },
-  /** Hidden input field name (attached to parent form) */
   fieldName: {
     type:    String,
     default: 'captcha_token',
   },
-  /** Visual theme */
   theme: {
     type:    String,
     default: () => window.__GoalCaptchaConfig?.theme ?? 'football',
   },
-  /** Difficulty (informational — server controls actual tolerance) */
   difficulty: {
     type:    String,
     default: () => window.__GoalCaptchaConfig?.difficulty ?? 'medium',
   },
-  /** Auto-load on mount */
   autoLoad: {
+    type:    Boolean,
+    default: true,
+  },
+  closable: {
     type:    Boolean,
     default: true,
   },
@@ -115,7 +121,7 @@ const props = defineProps({
 
 // ─── Emits ────────────────────────────────────────────────────────────────
 
-const emit = defineEmits(['verified', 'failed', 'loaded'])
+const emit = defineEmits(['verified', 'failed', 'loaded', 'close'])
 
 // ─── Composable ───────────────────────────────────────────────────────────
 
@@ -131,7 +137,7 @@ const {
   retry,
 } = useGoalCaptcha(props.generateUrl, props.verifyUrl)
 
-// ─── Canvas sync ─────────────────────────────────────────────────────────
+// ─── Canvas sync ──────────────────────────────────────────────────────────
 
 const currentBallX = ref(null)
 
@@ -141,13 +147,18 @@ function handleDragMove(x) {
 }
 
 function handleDragEnd(x) {
+  currentBallX.value = x
   onDragEnd(x)
 }
 
-// ─── Side-effects ─────────────────────────────────────────────────────────
+// ─── Side-effects ──────────────────────────────────────────────────────────
 
 watch(state, (s) => {
-  if (s === 'success') emit('verified', token.value)
+  if (s === 'success') {
+    // Snap ball to exact target on success
+    currentBallX.value = captchaData.value?.target_x ?? currentBallX.value
+    emit('verified', token.value)
+  }
   if (s === 'failed')  emit('failed', errorMsg.value)
   if (s === 'ready')   emit('loaded', captchaData.value)
 })
@@ -158,106 +169,159 @@ onMounted(() => {
 </script>
 
 <style>
-/* ── Base ─────────────────────────────────────────────────────────────────── */
-.goal-captcha {
+/* ── Modal card ───────────────────────────────────────────────────────────── */
+.gc-modal {
   position:      relative;
   width:         100%;
-  max-width:     400px;
-  border-radius: 10px;
+  max-width:     440px;
+  background:    #ffffff;
+  border-radius: 16px;
   overflow:      hidden;
-  font-family:   system-ui, -apple-system, sans-serif;
-  box-shadow:    0 4px 24px rgba(0,0,0,.35);
-  background:    #16213e;
+  font-family:   system-ui, -apple-system, 'Segoe UI', sans-serif;
+  box-shadow:    0 8px 40px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.06);
+  color:         #111827;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.gc-modal__header {
+  display:         flex;
+  align-items:     flex-start;
+  justify-content: space-between;
+  padding:         16px 16px 12px 20px;
+  gap:             8px;
+}
+.gc-modal__header-text { flex: 1; min-width: 0; }
+.gc-modal__title {
+  margin:      0 0 4px;
+  font-size:   1.0625rem;
+  font-weight: 700;
+  color:       #111827;
+  line-height: 1.3;
+}
+.gc-modal__subtitle {
+  margin:    0;
+  font-size: 0.875rem;
+  color:     #6b7280;
+  line-height: 1.4;
+}
+.gc-modal__close {
+  flex-shrink:     0;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           32px;
+  height:          32px;
+  border:          none;
+  background:      transparent;
+  border-radius:   8px;
+  color:           #9ca3af;
+  cursor:          pointer;
+  transition:      background .15s, color .15s;
+  margin-top:      -2px;
+}
+.gc-modal__close:hover { background: #f3f4f6; color: #111827; }
+
+/* ── Scene wrapper ────────────────────────────────────────────────────────── */
+.gc-modal__scene {
+  position: relative;
+  width:    100%;
+  line-height: 0;
 }
 
 /* ── Skeleton ─────────────────────────────────────────────────────────────── */
-.goal-captcha__skeleton {
-  padding: 1rem;
-}
-.goal-captcha__skeleton-canvas,
-.goal-captcha__skeleton-slider {
-  background:    linear-gradient(90deg, #1a1a2e 25%, #2a2a4e 50%, #1a1a2e 75%);
+.gc-modal__skeleton {
+  height:          220px;
+  background:      linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
   background-size: 200% 100%;
-  animation:     gc-shimmer 1.4s infinite;
-  border-radius: 6px;
-}
-.goal-captcha__skeleton-canvas { height: 150px; margin-bottom: 8px; }
-.goal-captcha__skeleton-slider { height: 48px; }
-.goal-captcha__skeleton-text {
-  text-align: center;
-  color: rgba(255,255,255,.4);
-  font-size: .85rem;
-  margin: .5rem 0 0;
+  animation:       gc-shimmer 1.4s infinite;
 }
 
-/* ── Error ────────────────────────────────────────────────────────────────── */
-.goal-captcha__error {
+/* ── Error scene ──────────────────────────────────────────────────────────── */
+.gc-modal__error-scene {
+  height:          220px;
   display:         flex;
   flex-direction:  column;
   align-items:     center;
-  gap:             .75rem;
-  padding:         1.5rem;
-  background:      #1a0a0a;
+  justify-content: center;
+  gap:             12px;
+  background:      #fff5f5;
+  line-height:     1.5;
 }
-.goal-captcha__error-text {
-  color:      #e74c3c;
-  font-size:  .9rem;
+.gc-modal__error-icon { font-size: 2.75rem; }
+.gc-modal__error-msg  {
+  font-size:  .875rem;
+  color:      #dc2626;
   margin:     0;
   text-align: center;
-}
-.goal-captcha__retry-btn,
-.goal-captcha__start-btn {
-  padding:       .55rem 1.4rem;
-  background:    #f1c40f;
-  color:         #1a1a2e;
-  border:        none;
-  border-radius: 6px;
-  font-size:     .9rem;
-  font-weight:   700;
-  cursor:        pointer;
-  transition:    opacity .2s;
-}
-.goal-captcha__retry-btn:hover:not(:disabled),
-.goal-captcha__start-btn:hover {
-  opacity: .88;
-}
-.goal-captcha__retry-btn:disabled {
-  opacity: .45;
-  cursor: not-allowed;
+  padding:    0 24px;
 }
 
 /* ── Idle ─────────────────────────────────────────────────────────────────── */
-.goal-captcha__idle {
+.gc-modal__idle {
+  height:          220px;
   display:         flex;
   align-items:     center;
   justify-content: center;
-  height:          198px;
-  background:      #16213e;
+  background:      #f9fafb;
+  line-height:     1.5;
 }
 
 /* ── Verifying overlay ────────────────────────────────────────────────────── */
-.goal-captcha__verifying {
+.gc-modal__verifying {
   position:        absolute;
   inset:           0;
-  background:      rgba(22,33,62,.75);
+  background:      rgba(255,255,255,.72);
   display:         flex;
   align-items:     center;
   justify-content: center;
-  gap:             .6rem;
-  color:           #f1c40f;
+  gap:             10px;
   font-size:       .9rem;
   font-weight:     600;
-  backdrop-filter: blur(2px);
+  color:           #374151;
+  backdrop-filter: blur(3px);
 }
-.goal-captcha__spinner {
-  width:         20px;
-  height:        20px;
-  border:        3px solid rgba(241,196,15,.25);
-  border-top-color: #f1c40f;
-  border-radius: 50%;
-  animation:     gc-spin .7s linear infinite;
-  display:       inline-block;
+.gc-spinner {
+  width:            20px;
+  height:           20px;
+  border:           3px solid rgba(55,65,81,.15);
+  border-top-color: #374151;
+  border-radius:    50%;
+  animation:        gc-spin .7s linear infinite;
+  display:          inline-block;
 }
+
+/* ── Slider wrap ──────────────────────────────────────────────────────────── */
+.gc-modal__slider-wrap {
+  padding:    10px 12px 14px;
+  background: #ffffff;
+}
+.gc-modal__slider-skeleton {
+  height:          54px;
+  background:      linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation:       gc-shimmer 1.4s infinite;
+  border-radius:   12px;
+}
+.gc-modal__error-actions {
+  display:         flex;
+  justify-content: center;
+  padding:         6px 0;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.gc-btn-primary {
+  padding:       10px 28px;
+  background:    #2563eb;
+  color:         #fff;
+  border:        none;
+  border-radius: 8px;
+  font-size:     .9rem;
+  font-weight:   600;
+  cursor:        pointer;
+  transition:    opacity .2s, transform .1s;
+}
+.gc-btn-primary:hover  { opacity: .9; }
+.gc-btn-primary:active { transform: scale(.97); }
 
 /* ── Keyframes ────────────────────────────────────────────────────────────── */
 @keyframes gc-shimmer {
@@ -267,4 +331,7 @@ onMounted(() => {
 @keyframes gc-spin {
   to { transform: rotate(360deg); }
 }
+
+/* keep old class names working for any external references */
+.goal-captcha { display: contents; }
 </style>

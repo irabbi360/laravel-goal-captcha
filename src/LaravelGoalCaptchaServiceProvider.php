@@ -179,9 +179,9 @@ class LaravelGoalCaptchaServiceProvider extends ServiceProvider
         ], 'goal-captcha-assets');
 
         // Migrations
-        $this->publishes([
-            __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'goal-captcha-migrations');
+        // $this->publishes([
+        //     __DIR__ . '/../database/migrations' => database_path('migrations'),
+        // ], 'goal-captcha-migrations');
     }
 }
 

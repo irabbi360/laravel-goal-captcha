@@ -48,6 +48,7 @@ export class SceneRenderer {
     this.ctx             = canvas.getContext('2d')
     this.data            = captchaData
     this.ballX           = captchaData.ball_start_x
+    this.ballStartX      = captchaData.ball_start_x   // reference for arc interpolation
     this.keeperOffsetX   = captchaData.scene?.keeper_offset_x ?? 0
     this.images          = {}
     this.ready           = false
@@ -393,7 +394,14 @@ export class SceneRenderer {
     const img = this.images.ball
     const r   = Math.round(h * 0.22)   // large ball — ~22 % of canvas height
     const cx  = this.ballX
-    const cy  = Math.round(h * 0.82)   // ground level
+
+    // Interpolate cy: ball arcs upward from ground → target ring as cx → targetX
+    const targetX = this.data.target_x
+    const dist    = Math.abs(targetX - this.ballStartX) || 1
+    const prog    = Math.max(0, Math.min(1, 1 - Math.abs(cx - targetX) / dist))
+    const groundY = h * 0.82
+    const ringY   = h * 0.40
+    const cy      = Math.round(groundY + prog * (ringY - groundY))
 
     if (img) {
       this.ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2)

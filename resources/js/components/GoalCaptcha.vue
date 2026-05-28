@@ -223,6 +223,9 @@ onMounted(() => {
   }
 })
 
+// Allow parent to programmatically open/close (e.g. Inertia / SPA forms)
+defineExpose({ open: openModal, close: closeModal })
+
 // ─── CaptchaCard — internal sub-component ─────────────────────────────────
 // Extracted so both modal and inline modes share the same inner markup.
 

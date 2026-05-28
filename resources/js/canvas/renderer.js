@@ -52,6 +52,13 @@ export class SceneRenderer {
     this.keeperOffsetX   = captchaData.scene?.keeper_offset_x ?? 0
     this.images          = {}
     this.ready           = false
+
+    // Place keeper on the opposite side of the goal from the target ring
+    const cw = canvas.width
+    const tX = captchaData.target_x ?? (cw * 0.65)
+    this.keeperBaseX = tX >= cw * 0.50
+      ? Math.round(cw * 0.26)   // target on right → keeper on left
+      : Math.round(cw * 0.74)   // target on left  → keeper on right
   }
 
   async preload() {
@@ -233,7 +240,7 @@ export class SceneRenderer {
 
   _drawGoalkeeper(scene, w, h) {
     const img  = this.images.goalkeeper
-    const kcx  = Math.round(w * 0.40 + this.keeperOffsetX)
+    const kcx  = Math.round(this.keeperBaseX + this.keeperOffsetX)
     const kTop = Math.round(h * 0.16)
     const kBot = Math.round(h * 0.89)
     const kH   = kBot - kTop
@@ -392,7 +399,7 @@ export class SceneRenderer {
 
   _drawBall(h) {
     const img = this.images.ball
-    const r   = Math.round(h * 0.22)   // large ball — ~22 % of canvas height
+    const r   = Math.round(h * 0.11)   // ~11 % of canvas height — compact real-football size
     const cx  = this.ballX
 
     // Interpolate cy: ball arcs upward from ground → target ring as cx → targetX
@@ -411,62 +418,75 @@ export class SceneRenderer {
     const ctx = this.ctx
     ctx.save()
 
-    // Clip to canvas so ball can hang off the left/right edge naturally
+    // Clip to canvas bounds
     ctx.beginPath()
     ctx.rect(0, 0, this.canvas.width, this.canvas.height)
     ctx.clip()
 
-    // Drop shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.18)'
+    // Drop shadow ellipse
+    ctx.fillStyle = 'rgba(0,0,0,0.22)'
     ctx.beginPath()
-    ctx.ellipse(cx + r * 0.04, cy + r * 0.90, r * 0.78, r * 0.14, 0, 0, Math.PI * 2)
+    ctx.ellipse(cx + r * 0.05, cy + r * 0.88, r * 0.75, r * 0.18, 0, 0, Math.PI * 2)
     ctx.fill()
 
-    // Ball sphere — radial gradient for 3-D look
-    const sGrad = ctx.createRadialGradient(cx - r * 0.30, cy - r * 0.30, r * 0.05, cx, cy, r)
+    // Sphere base — radial gradient for 3-D sheen
+    const sGrad = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.32, r * 0.04, cx, cy, r)
     sGrad.addColorStop(0,    '#ffffff')
-    sGrad.addColorStop(0.42, '#eeeeee')
-    sGrad.addColorStop(1,    '#c0c0c0')
+    sGrad.addColorStop(0.38, '#f0f0f0')
+    sGrad.addColorStop(0.75, '#d4d4d4')
+    sGrad.addColorStop(1,    '#aaaaaa')
     ctx.fillStyle = sGrad
     ctx.beginPath()
     ctx.arc(cx, cy, r, 0, Math.PI * 2)
     ctx.fill()
 
-    // Pentagon patches (classic football pattern)
-    ctx.fillStyle = '#1a1a1a'
-    _drawPentagon(ctx, cx, cy, r * 0.20)
-    const patchR = r * 0.185
-    const pDist  = r * 0.47
+    // ── Classic Telstar-style patches (clipped to sphere) ──
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(cx, cy, r - 0.5, 0, Math.PI * 2)
+    ctx.clip()
+
+    ctx.fillStyle = '#111111'
+
+    // Centre pentagon
+    _drawPentagon(ctx, cx, cy, r * 0.28)
+
+    // 5 surrounding pentagons at 72° steps (top = −90°)
+    const pDist  = r * 0.58
+    const patchR = r * 0.23
     for (let i = 0; i < 5; i++) {
       const a = (i * 72 - 90) * Math.PI / 180
       _drawPentagon(ctx, cx + pDist * Math.cos(a), cy + pDist * Math.sin(a), patchR)
     }
 
-    // Outline
-    ctx.strokeStyle = '#888888'
-    ctx.lineWidth   = 1.5
+    // Seam lines from centre patch edge to each surrounding patch
+    ctx.strokeStyle = '#333333'
+    ctx.lineWidth   = Math.max(0.8, r * 0.055)
+    ctx.lineCap     = 'round'
+    for (let i = 0; i < 5; i++) {
+      const a = (i * 72 - 90) * Math.PI / 180
+      ctx.beginPath()
+      ctx.moveTo(cx + r * 0.29 * Math.cos(a), cy + r * 0.29 * Math.sin(a))
+      ctx.lineTo(cx + pDist * 0.72 * Math.cos(a), cy + pDist * 0.72 * Math.sin(a))
+      ctx.stroke()
+    }
+
+    ctx.restore()
+
+    // Sphere outline
+    ctx.strokeStyle = '#777777'
+    ctx.lineWidth   = 0.8
     ctx.beginPath()
     ctx.arc(cx, cy, r, 0, Math.PI * 2)
     ctx.stroke()
 
+    // Specular highlight (small glossy ellipse top-left)
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'
+    ctx.beginPath()
+    ctx.ellipse(cx - r * 0.28, cy - r * 0.30, r * 0.20, r * 0.13, -Math.PI / 5, 0, Math.PI * 2)
+    ctx.fill()
+
     ctx.restore()
-
-    // ── dead code kept for signature compatibility (never reached) ──
-    const radius = r
-    const patches = [
-      [cx, cy],
-      [cx - radius * 0.4, cy - radius * 0.5],
-      [cx + radius * 0.4, cy - radius * 0.5],
-      [cx - radius * 0.5, cy + radius * 0.3],
-      [cx + radius * 0.5, cy + radius * 0.3],
-    ]
-    for (const [px, py] of patches) {
-      this.ctx.beginPath()
-      this.ctx.arc(px, py, radius * 0.2, 0, Math.PI * 2)
-      this.ctx.fill()
-    }
-
-    this.ctx.restore()
   }
 
   destroy() {

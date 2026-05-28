@@ -32,12 +32,13 @@ export class SceneRenderer {
    * @param {object} captchaData  - data from the generate endpoint
    */
   constructor(canvas, captchaData) {
-    this.canvas  = canvas
-    this.ctx     = canvas.getContext('2d')
-    this.data    = captchaData
-    this.ballX   = captchaData.ball_start_x
-    this.images  = {}
-    this.ready   = false
+    this.canvas          = canvas
+    this.ctx             = canvas.getContext('2d')
+    this.data            = captchaData
+    this.ballX           = captchaData.ball_start_x
+    this.keeperOffsetX   = captchaData.scene?.keeper_offset_x ?? 0
+    this.images          = {}
+    this.ready           = false
   }
 
   async preload() {
@@ -145,7 +146,7 @@ export class SceneRenderer {
     const img = this.images.goalkeeper
     const kw  = Math.round(h * 0.35)
     const kh  = Math.round(h * 0.72)
-    const kx  = Math.round(w / 2 - kw / 2 + (scene.keeper_offset_x ?? 0))
+    const kx  = Math.round(w / 2 - kw / 2 + this.keeperOffsetX)
     const ky  = Math.round(h * 0.18)
 
     if (img) {

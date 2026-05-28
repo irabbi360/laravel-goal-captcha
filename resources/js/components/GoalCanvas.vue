@@ -67,13 +67,14 @@ onMounted(async () => {
   await renderer.preload()
 
   // Animate goalkeeper idle bounce
+  const baseOffset = props.captchaData.scene?.keeper_offset_x ?? 0
   stopBounce = bounce(
-    (props.captchaData.scene?.keeper_offset_x ?? 0) - 8,
-    (props.captchaData.scene?.keeper_offset_x ?? 0) + 8,
+    baseOffset - 8,
+    baseOffset + 8,
     2400,
     (offset) => {
       if (renderer) {
-        renderer.data.scene.keeper_offset_x = offset
+        renderer.keeperOffsetX = offset
         renderer.draw()
       }
     }
